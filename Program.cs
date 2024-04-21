@@ -43,6 +43,7 @@ internal class Program
     static void PlayTurn(byte[] xSquares, byte[] oSquares)
     {
         int xIndex = Tools.FirstEmptyIndex(xSquares);
+
         int oIndex = Tools.FirstEmptyIndex(oSquares);
 
         if (xIndex == oIndex) { ConsoleOutputs.DisplayXTurn(); }
