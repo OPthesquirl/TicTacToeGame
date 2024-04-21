@@ -20,7 +20,7 @@ internal class Program
 
     static void PlayGame(byte[] xSquares, byte[] oSquares)
     {
-        while (IsNotWinCondition(xSquares, oSquares) || xSquares.Last() == 0)
+        while (IsNotWinCondition(xSquares, oSquares) && xSquares.Last() == 0)
         {
             PlayTurn(xSquares, oSquares);
             ConsoleUserInterface.ViewTicTacToeBoard(xSquares, oSquares);

@@ -67,15 +67,17 @@ internal class Tools
         return false;
     }
 
-    public static int FirstEmptyIndex(byte[] array)
+    public static byte FirstEmptyIndex(byte[] array)
     {
-        int counter = 0;
-        foreach (byte b in array)
+        byte i;
+        for (i = 0; i < array.Length; i++)
         {
-            if (b == 0) { return counter; }
-            if (counter != array.Length) { counter++; }
+            if (array[i] == 0)
+            {
+                return i;
+            }
         }
-        return -1;
+        return i;
     }
 
 }
