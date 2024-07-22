@@ -9,6 +9,11 @@ namespace TicTacToeGame;
 
 public class ConsoleOutputs
 {
+    public static void AccessHistoryPrompt()
+    {
+        Console.WriteLine("Input Y to access History");
+    }
+
     public static void DeclareWinner(byte[] xSquares, byte[] oSquares)
     {
         if (xSquares.Length > oSquares.Length)
@@ -36,6 +41,10 @@ public class ConsoleOutputs
         Console.WriteLine("4 | 5 | 6 ");
         Console.WriteLine(Constants.horizontalDisplayLine);
         Console.WriteLine("7 | 8 | 9 ");
+    }
+    public static void DisplayPlayerNameInput(string player)
+    {
+        Console.WriteLine("Player " + player + " name:");
     }
 
     public static void DisplayDraw()

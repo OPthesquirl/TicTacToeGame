@@ -1,22 +1,47 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using System.Data;
+using System.Text.Json;
+using TicTacToeGame.ClassPractice;
+
 namespace TicTacToeGame;
 internal class Program
 {
+    public static byte[] xSquares = new byte[5];
+    public static byte[] oSquares = new byte[4];
+
     static void Main(string[] args)
     {
-        byte[] xSquares = new byte[5];
-        byte[] oSquares = new byte[4];
+
 
         ConsoleOutputs.GameStartExplanation();
 
+        string[] playerNames = ConsoleUserInterface.TakeUserNames();
+
         PlayGame(xSquares, oSquares);
-        CheckForDraw(xSquares, oSquares);
+
+        var history = new History
+        {
+            date = DateTime.Now,
+            OMoveHistory = Tools.ByteArrayToInt(oSquares),
+            XMoveHistory = Tools.ByteArrayToInt(xSquares),
+            playerOName = playerNames[1],
+            playerXName = playerNames[0]
+        };
+
+        IHistoryService historyService = new JsonHistoryService();
+        historyService.WriteHistoryFile(history);
 
         ExitLoop();
 
     }
 
 
+
+
+    public static void GetHistory(IHistoryService historyService)
+    {
+        historyService.ReadHistoryFile(Constants.fileName);
+    }
 
     static void PlayGame(byte[] xSquares, byte[] oSquares)
     {
@@ -29,6 +54,7 @@ internal class Program
         {
             ConsoleOutputs.DeclareWinner(xSquares, oSquares);
         }
+        CheckForDraw(xSquares, oSquares);
     }
 
     static void CheckForDraw(byte[] xSquares, byte[] oSquares)
@@ -68,7 +94,7 @@ internal class Program
         while (true)
         {
             ConsoleOutputs.DisplayExit();
-            if (ConsoleInputs.GetConsoleInput() != 0)
+            if (ConsoleInputs.GetConsoleByteInput() != 0)
             {
                 break;
             }

@@ -8,6 +8,36 @@ namespace TicTacToeGame;
 
 internal class Tools
 {
+    public static byte[] ConvertIntegerToByteArray(int integer, int arraySize)
+    {
+        byte[] output = new byte[arraySize];
+
+        for (int i = 0; i < arraySize - 1; i++)
+        {
+            var step = (int)Math.Pow(10, arraySize - 1 - i);
+            while (integer >= step)
+            {
+                integer -= step;
+                output[i]++;
+            }
+        }
+
+        return output;
+
+    }
+
+    public static int ByteArrayToInt(byte[] array)
+    {
+        int integer = 0;
+        int power = array.Length - 1;
+        for (int i = 0; i < array.Length; i++)
+        {
+            integer += array[i] * (int)Math.Pow(10, power);
+            power--;
+        }
+        return integer;
+    }
+
     public static bool IsInputError(byte input, byte[] xSquares, byte[] oSquares)
     {
         if (IsInputOutOfBoundsError(input) || IsOccupiedSquare(input, oSquares, xSquares))

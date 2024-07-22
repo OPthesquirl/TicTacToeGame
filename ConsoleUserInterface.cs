@@ -8,13 +8,32 @@ namespace TicTacToeGame;
 
 internal class ConsoleUserInterface
 {
+    public static bool AskAccessHistory()
+    {
+        ConsoleOutputs.AccessHistoryPrompt();
+        string input = ConsoleInputs.GetConsoleStringInput();
+        if (input == "y" ||  input == "Y")   {  return true;}
+        else { return false;  }
+    }
+
+    public static string[] TakeUserNames()
+    {
+        ConsoleOutputs.DisplayPlayerNameInput("X");
+        string playerXName = ConsoleInputs.GetConsoleStringInput();
+
+        ConsoleOutputs.DisplayPlayerNameInput("O");
+        string playerOName = ConsoleInputs.GetConsoleStringInput();
+
+        return [playerXName, playerOName];
+    }
+
     public static byte TakeUserInput(byte[] xSquares, byte[] oSquares)
     {
-        byte input = ConsoleInputs.GetConsoleInput();
+        byte input = ConsoleInputs.GetConsoleByteInput();
         while (Tools.IsInputError(input, xSquares, oSquares))
         {
             ConsoleOutputs.DisplayError();
-            input = ConsoleInputs.GetConsoleInput();
+            input = ConsoleInputs.GetConsoleByteInput();
         }
         return input;
     }

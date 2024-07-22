@@ -27,4 +27,6 @@ internal class Constants
 
     static public string verticalDisplayLine = " | ";
     static public string horizontalDisplayLine = "--+---+--";
+
+    static public string fileName = @"C:\\Temp\\CSharpPractice.json";
 }
