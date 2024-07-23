@@ -12,10 +12,16 @@ internal class Program
     static void Main(string[] args)
     {
         IHistoryService historyService = new JsonHistoryService();
-        Console.WriteLine("type to search by playername")
+
+        string input = "";
+        while (input != "0")
+        {
+            Console.WriteLine("Type name to search by playername, type 0 to continue to the game");
+            input = ConsoleInputs.GetConsoleStringInput();
+            historyService.DisplayGamesByPlayerName(input);
+        }
 
         ConsoleOutputs.GameStartExplanation();
-
         string[] playerNames = ConsoleUserInterface.TakeUserNames();
 
         PlayGame(xSquares, oSquares);
