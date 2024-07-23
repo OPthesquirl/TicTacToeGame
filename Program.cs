@@ -11,7 +11,8 @@ internal class Program
 
     static void Main(string[] args)
     {
-
+        IHistoryService historyService = new JsonHistoryService();
+        Console.WriteLine("type to search by playername")
 
         ConsoleOutputs.GameStartExplanation();
 
@@ -27,16 +28,11 @@ internal class Program
             playerOName = playerNames[1],
             playerXName = playerNames[0]
         };
-
-        IHistoryService historyService = new JsonHistoryService();
         historyService.WriteHistoryFile(history);
 
         ExitLoop();
 
     }
-
-
-
 
     public static void GetHistory(IHistoryService historyService)
     {
@@ -45,12 +41,12 @@ internal class Program
 
     static void PlayGame(byte[] xSquares, byte[] oSquares)
     {
-        while (IsNotWinCondition(xSquares, oSquares) && xSquares.Last() == 0)
+        while (!IsWinCondition(xSquares, oSquares) && xSquares.Last() == 0)
         {
             PlayTurn(xSquares, oSquares);
             ConsoleUserInterface.ViewTicTacToeBoard(xSquares, oSquares);
         }
-        if (IsNotWinCondition(xSquares, oSquares) == false)
+        if (IsWinCondition(xSquares, oSquares))
         {
             ConsoleOutputs.DeclareWinner(xSquares, oSquares);
         }
@@ -59,7 +55,7 @@ internal class Program
 
     static void CheckForDraw(byte[] xSquares, byte[] oSquares)
     {
-        if (IsNotWinCondition(xSquares, oSquares) && xSquares.Last() != 0)
+        if (!IsWinCondition(xSquares, oSquares) && xSquares.Last() != 0)
         {
             ConsoleUserInterface.ViewTicTacToeBoard(xSquares, oSquares);
             ConsoleOutputs.DisplayDraw();
@@ -103,21 +99,21 @@ internal class Program
 
 
 
-    static bool IsNotWinCondition(byte[] xSquares, byte[] oSquares)
+    public static bool IsWinCondition(byte[] xSquares, byte[] oSquares)
     {
         foreach (var element in Constants.winningCombinationsOfCoördinates)
         {
             if (Tools.IsSubsetOf(element, xSquares))
             {
-                return false;
+                return true;
             }
             else if (Tools.IsSubsetOf(element, oSquares))
             {
-                return false;
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
 }

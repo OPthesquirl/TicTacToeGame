@@ -29,4 +29,8 @@ internal class Constants
     static public string horizontalDisplayLine = "--+---+--";
 
     static public string fileName = @"C:\\Temp\\CSharpPractice.json";
+
+    static public string wonVsLine = " won VS ";
+    static public string gameDrawLine = "It was a draw between: ";
+    static public string andLine = " and ";
 }

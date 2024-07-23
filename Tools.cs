@@ -2,24 +2,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using TicTacToeGame.ClassPractice;
 
 namespace TicTacToeGame;
 
 internal class Tools
 {
+    public static List<History> GetJsonHistoryList(string path)
+    {
+        string jsonString = File.ReadAllText(path);
+        var storedHistoryList = JsonSerializer.Deserialize<List<History>>(jsonString);
+        return storedHistoryList;
+    }
+
     public static byte[] ConvertIntegerToByteArray(int integer, int arraySize)
     {
         byte[] output = new byte[arraySize];
+        int index = 0;
 
-        for (int i = 0; i < arraySize - 1; i++)
+        for(int i = arraySize-1; i >= 0; i--)
         {
-            var step = (int)Math.Pow(10, arraySize - 1 - i);
-            while (integer >= step)
+            byte value = 0;
+            while(integer >= Math.Pow(10, i))
             {
-                integer -= step;
-                output[i]++;
+                integer -= (int)Math.Pow(10, i);
+                value++;
             }
+            output[index++] = value;
         }
 
         return output;
