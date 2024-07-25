@@ -18,7 +18,8 @@ internal class Constants
     static public string xTurnLine = "X's turn, input:";
     static public string oTurnLine = "O's turn, input:";
     static public string invalidInputLine = "Invalid Input";
-    static public string exitExplanationLine = "Input any non0 number to exit";
+    static public string exitExplanationLine = "Press Enter to continue/exit";
+    static public string historyScrollExplanationline = "Press arrow keys to scroll through the gameHistory";
 
     //Constants for DisplayGameState
     static public char xChar = 'X';
@@ -30,7 +31,15 @@ internal class Constants
 
     static public string fileName = @"C:\\Temp\\CSharpPractice.json";
 
+    static public string Error404Line = "Error 404 FileName not found";
+
+    static public string pressEnterForSpecificGameLine = "Press Enter to look at a specific game";
     static public string wonVsLine = " won VS ";
     static public string gameDrawLine = "It was a draw between: ";
     static public string andLine = " and ";
+    static public string gameNumberLine = "GameNumber: ";
+    static public string historySearchByNameLine = "Type name to search by playername, press backSpace to continue to the game";
+    static public string chooseAGameLine = "Choose a game: ";
+
+    static public string computerWinsLine = "The Algorithm is Victorious";
 }

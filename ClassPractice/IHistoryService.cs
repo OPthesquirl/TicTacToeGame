@@ -3,9 +3,8 @@
 public interface IHistoryService
 {
     void DisplayGamesByPlayerName(string playerName);
-    void DisplayLastGame();
     void WriteHistoryFile(History history);
-    void ReadHistoryFile(string path);
+    List<History> ReadHistoryFile(string path);
 
 
 }

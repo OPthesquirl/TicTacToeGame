@@ -10,14 +10,78 @@ namespace TicTacToeGame;
 
 internal class Tools
 {
-    public static List<History> GetJsonHistoryList(string path)
+    public static void ExitLoop()
     {
-        string jsonString = File.ReadAllText(path);
-        var storedHistoryList = JsonSerializer.Deserialize<List<History>>(jsonString);
-        return storedHistoryList;
+        ConsoleOutputs.DisplayLine(Constants.exitExplanationLine);
+        while (!ConsoleInputs.IsKeyPressed(ConsoleKey.Enter)) { }
+    }
+    public static bool IsWinCondition(byte[] xSquares, byte[] oSquares)
+    {
+        foreach (var element in Constants.winningCombinationsOfCoördinates)
+        {
+            if (IsSubsetOf(element, xSquares))
+            {
+                return true;
+            }
+            else if (IsSubsetOf(element, oSquares))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    public static byte[] ConvertIntegerToByteArray(int integer, int arraySize)
+    public static bool IsDraw(byte[] xSquares, byte[] oSquares)
+    {
+        if (!IsWinCondition(xSquares, oSquares) && xSquares.Last() != 0)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public static void StoreHistoryFile(string playerXName, string playerOName, byte[]xMoveHistory, byte[] oMoveHistory)
+    {
+        var history = new History()
+        {
+            Date = DateTime.Now,
+            PlayerXName = playerXName,
+            PlayerOName = playerOName,
+            XMoveHistory = Tools.ByteArrayToInt(xMoveHistory),
+            OMoveHistory = Tools.ByteArrayToInt(oMoveHistory)
+        };
+        IHistoryService historyService = new JsonHistoryService();
+        historyService.WriteHistoryFile(history);
+    }
+
+    public static string[] OrderNamesToWinnerLoser(byte[] xMoveHistory, byte[] oMoveHistory, string playerXName, string playerOName)
+    {
+        foreach (var element in Constants.winningCombinationsOfCoördinates)
+        {
+            if (Tools.IsSubsetOf(element, xMoveHistory))
+            {
+                return [playerXName, playerOName];
+            }
+            else
+            {
+                return [playerOName, playerXName];
+            }
+        }
+        return ["", ""];
+    }
+
+    public static int CurrentTurn(byte[] xMoveHistory, byte[] oMoveHistory)
+    {
+        if (xMoveHistory.ToList().IndexOf(0) == -1) { return xMoveHistory.Length + oMoveHistory.Length - 2; }
+        else if (oMoveHistory.ToList().IndexOf(0) == -1) { return xMoveHistory.Length + oMoveHistory.Length - 3; }
+        else
+        {
+            return xMoveHistory.ToList().IndexOf(0) + oMoveHistory.ToList().IndexOf(0) + 2;
+        }
+    }
+
+    public static byte[] IntegerToByteArray(int integer, int arraySize)
     {
         byte[] output = new byte[arraySize];
         int index = 0;
@@ -58,7 +122,7 @@ internal class Tools
         return false;
     }
 
-    public static bool IsInputOutOfBoundsError(byte input)
+    public static bool IsInputOutOfBoundsError(int input)
     {
         if (input > Constants.maximumNumberOfTurnsAndInputValues || input < Constants.minimumInputValue)
         {

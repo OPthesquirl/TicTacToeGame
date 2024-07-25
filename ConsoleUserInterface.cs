@@ -8,20 +8,12 @@ namespace TicTacToeGame;
 
 internal class ConsoleUserInterface
 {
-    public static bool AskAccessHistory()
-    {
-        ConsoleOutputs.AccessHistoryPrompt();
-        string input = ConsoleInputs.GetConsoleStringInput();
-        if (input == "y" ||  input == "Y")   {  return true;}
-        else { return false;  }
-    }
-
     public static string[] TakeUserNames()
     {
-        ConsoleOutputs.DisplayPlayerNameInput("X");
+        ConsoleOutputs.PlayerNameInputLine("X");
         string playerXName = ConsoleInputs.GetConsoleStringInput();
 
-        ConsoleOutputs.DisplayPlayerNameInput("O");
+        ConsoleOutputs.PlayerNameInputLine("O");
         string playerOName = ConsoleInputs.GetConsoleStringInput();
 
         return [playerXName, playerOName];
@@ -32,30 +24,11 @@ internal class ConsoleUserInterface
         byte input = ConsoleInputs.GetConsoleByteInput();
         while (Tools.IsInputError(input, xSquares, oSquares))
         {
-            ConsoleOutputs.DisplayError();
+            ConsoleOutputs.DisplayLine(Constants.invalidInputLine);
             input = ConsoleInputs.GetConsoleByteInput();
         }
         return input;
     }
 
-    public static void ViewTicTacToeBoard(byte[] xSquares, byte[] oSquares)
-    {
-        char[] gameState = new char[9];
-        for (byte i = 1; i < 10; i++)
-        {
-            if (Tools.IsElementOf(xSquares, i))
-            {
-                gameState[i - 1] = Constants.xChar;
-            }
-            else if (Tools.IsElementOf(oSquares, i))
-            {
-                gameState[i - 1] = Constants.oChar;
-            }
-            else
-            {
-                gameState[i - 1] = Constants.emptyChar;
-            }
-        }
-        ConsoleOutputs.DisplayGameState(gameState);
-    }
+    
 }

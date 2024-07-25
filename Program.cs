@@ -6,6 +6,7 @@ using TicTacToeGame.ClassPractice;
 namespace TicTacToeGame;
 internal class Program
 {
+
     public static byte[] xSquares = new byte[5];
     public static byte[] oSquares = new byte[4];
 
@@ -13,113 +14,67 @@ internal class Program
     {
         IHistoryService historyService = new JsonHistoryService();
 
-        string input = "";
-        while (input != "0")
-        {
-            Console.WriteLine("Type name to search by playername, type 0 to continue to the game");
-            input = ConsoleInputs.GetConsoleStringInput();
-            historyService.DisplayGamesByPlayerName(input);
-        }
+        DisplayHistoriesLoop(historyService);
 
         ConsoleOutputs.GameStartExplanation();
         string[] playerNames = ConsoleUserInterface.TakeUserNames();
 
         PlayGame(xSquares, oSquares);
 
-        var history = new History
+        if (Tools.IsDraw(xSquares, oSquares))
         {
-            date = DateTime.Now,
-            OMoveHistory = Tools.ByteArrayToInt(oSquares),
-            XMoveHistory = Tools.ByteArrayToInt(xSquares),
-            playerOName = playerNames[1],
-            playerXName = playerNames[0]
-        };
-        historyService.WriteHistoryFile(history);
+            ConsoleOutputs.ViewTicTacToeBoard(xSquares, oSquares);
+            ConsoleOutputs.GameDrawLine(playerNames[0], playerNames[1]);
+        }
 
-        ExitLoop();
+        Tools.StoreHistoryFile(playerNames[0], playerNames[1], xSquares, oSquares);
+
+        Tools.ExitLoop();
 
     }
 
-    public static void GetHistory(IHistoryService historyService)
+    static void DisplayHistoriesLoop(IHistoryService historyService)
     {
-        historyService.ReadHistoryFile(Constants.fileName);
+        while (!ConsoleInputs.IsKeyPressed(ConsoleKey.Backspace))
+        {
+            ConsoleOutputs.DisplayLine(Constants.historySearchByNameLine);
+            var input = ConsoleInputs.GetConsoleStringInput();
+            historyService.DisplayGamesByPlayerName(input);
+        }
     }
 
     static void PlayGame(byte[] xSquares, byte[] oSquares)
     {
-        while (!IsWinCondition(xSquares, oSquares) && xSquares.Last() == 0)
+        while (!Tools.IsWinCondition(xSquares, oSquares) && xSquares.Last() == 0)
         {
             PlayTurn(xSquares, oSquares);
-            ConsoleUserInterface.ViewTicTacToeBoard(xSquares, oSquares);
+            ConsoleOutputs.ViewTicTacToeBoard(xSquares, oSquares);
         }
-        if (IsWinCondition(xSquares, oSquares))
+        if (Tools.IsWinCondition(xSquares, oSquares))
         {
-            ConsoleOutputs.DeclareWinner(xSquares, oSquares);
-        }
-        CheckForDraw(xSquares, oSquares);
-    }
-
-    static void CheckForDraw(byte[] xSquares, byte[] oSquares)
-    {
-        if (!IsWinCondition(xSquares, oSquares) && xSquares.Last() != 0)
-        {
-            ConsoleUserInterface.ViewTicTacToeBoard(xSquares, oSquares);
-            ConsoleOutputs.DisplayDraw();
+            ConsoleOutputs.DeclareWinnerLine(xSquares, oSquares);
         }
     }
 
     static void PlayTurn(byte[] xSquares, byte[] oSquares)
     {
         int xIndex = Tools.FirstEmptyIndex(xSquares);
-
         int oIndex = Tools.FirstEmptyIndex(oSquares);
 
-        if (xIndex == oIndex) { ConsoleOutputs.DisplayXTurn(); }
-        else { ConsoleOutputs.DisplayOTurn(); }
+        if (Tools.CurrentTurn(xSquares, oSquares) % 2 != 0) { ConsoleOutputs.DisplayLine(Constants.oTurnLine); }
+        else { ConsoleOutputs.DisplayLine(Constants.xTurnLine); }
 
         byte input = ConsoleUserInterface.TakeUserInput(xSquares, oSquares);
-
-        if (xIndex == oIndex)
+        if (Tools.CurrentTurn(xSquares, oSquares) % 2 == 0)
         {
-            xSquares[xIndex] = input;
+            xSquares[xSquares.ToList().IndexOf(0)] = input;
             return;
         }
         else
         {
-            oSquares[oIndex] = input;
+            oSquares[oSquares.ToList().IndexOf(0)] = input;
             return;
         }
-    }
-
-    static void ExitLoop()
-    {
-        while (true)
-        {
-            ConsoleOutputs.DisplayExit();
-            if (ConsoleInputs.GetConsoleByteInput() != 0)
-            {
-                break;
-            }
-        }
-    }
-
-
-
-    public static bool IsWinCondition(byte[] xSquares, byte[] oSquares)
-    {
-        foreach (var element in Constants.winningCombinationsOfCoördinates)
-        {
-            if (Tools.IsSubsetOf(element, xSquares))
-            {
-                return true;
-            }
-            else if (Tools.IsSubsetOf(element, oSquares))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
 }

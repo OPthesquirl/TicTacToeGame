@@ -13,8 +13,8 @@ public class History
 {
     public int XMoveHistory { get; set; }
     public int OMoveHistory { get; set; }
-    public DateTime date { get; set; }
+    public DateTime Date { get; set; }
 
-    public string playerXName { get; set; }
-    public string playerOName { get; set;}
+    public string PlayerXName { get; set; }
+    public string PlayerOName { get; set; }
 }

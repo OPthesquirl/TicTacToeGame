@@ -1,66 +1,134 @@
-﻿using System.Text.Json;
+﻿using System.Data;
+using System.Diagnostics.Tracing;
+using System.Text.Json;
 
 namespace TicTacToeGame.ClassPractice;
 
 public class JsonHistoryService : IHistoryService
 {
+
     public void DisplayGamesByPlayerName(string playerName)
     {
-        var storedHistoryList = Tools.GetJsonHistoryList(Constants.fileName);
-        bool isInDatabase = false; 
+        var storedHistoryList = ReadHistoryFile(Constants.fileName);
+        List<History> historyListWithPlayerName = GetHistoriesWithPlayerName(storedHistoryList, playerName);
 
-        foreach (var storedHistory in storedHistoryList)
+        if (historyListWithPlayerName.Count == 0) { ConsoleOutputs.DisplayLine(Constants.Error404Line); }
+        else
         {
-            if (storedHistory.playerXName == playerName || storedHistory.playerOName == playerName)
+            int gamenumber = 1;
+            foreach (History history in historyListWithPlayerName)
             {
-                isInDatabase = true;
+                byte[] xMoveHistory = Tools.IntegerToByteArray(history.XMoveHistory, history.XMoveHistory.ToString().Length);
+                byte[] oMoveHistory = Tools.IntegerToByteArray(history.OMoveHistory, history.OMoveHistory.ToString().Length);
 
-                var xMoveHistory = Tools.ConvertIntegerToByteArray(storedHistory.XMoveHistory, storedHistory.XMoveHistory.ToString().Length);
-                var oMoveHistory = Tools.ConvertIntegerToByteArray(storedHistory.OMoveHistory, storedHistory.OMoveHistory.ToString().Length);
+                ConsoleOutputs.GameHistoryNumberDateLine(history.Date, gamenumber++);
 
-                if (Program.IsWinCondition(xMoveHistory, oMoveHistory))
+                if (Tools.IsWinCondition(xMoveHistory, oMoveHistory))
                 {
-                    if (xMoveHistory.ToList().IndexOf(0) > oMoveHistory.ToList().IndexOf(0))
-                    {
-                        Console.WriteLine(storedHistory.date);
-                        Console.WriteLine(storedHistory.playerXName + Constants.wonVsLine + storedHistory.playerOName);
-                        ConsoleUserInterface.ViewTicTacToeBoard(xMoveHistory, oMoveHistory);
-                    }
-                    else
-                    {
-                        Console.WriteLine(storedHistory.date);
-                        Console.WriteLine(storedHistory.playerOName + Constants.wonVsLine + storedHistory.playerXName);
-                        ConsoleUserInterface.ViewTicTacToeBoard(xMoveHistory, oMoveHistory);
-                    }
+                    string[] winnerLoser = Tools.OrderNamesToWinnerLoser(xMoveHistory, oMoveHistory, history.PlayerXName, history.PlayerOName);
+                    ConsoleOutputs.GameWonByLine(winnerLoser[0], winnerLoser[1]);
                 }
                 else
                 {
-                    Console.WriteLine(storedHistory.date);
-                    Console.WriteLine(Constants.gameDrawLine + storedHistory.playerXName + Constants.andLine + storedHistory.playerOName);
-                    ConsoleUserInterface.ViewTicTacToeBoard(xMoveHistory, oMoveHistory);
+                    ConsoleOutputs.GameDrawLine(history.PlayerXName, history.PlayerOName);
                 }
+
+                ConsoleOutputs.ViewTicTacToeBoard(xMoveHistory, oMoveHistory);
             }
-        }
-        if (!isInDatabase)
-        {
-            Console.WriteLine("Playername Not Found");
+
+            ConsoleOutputs.DisplayLine(Constants.pressEnterForSpecificGameLine);
+            if (ConsoleInputs.IsKeyPressed(ConsoleKey.Enter)) { WriteScrollChosenGame(historyListWithPlayerName); }
         }
     }
 
-    public void DisplayLastGame()
+    public static List<History> GetHistoriesWithPlayerName(List<History> histories, string playerName)
     {
-        var storedHistoryList = Tools.GetJsonHistoryList(Constants.fileName);
+        IHistoryService historyService = new JsonHistoryService();
+        JsonHistoryService jsonHistoryService = new JsonHistoryService();
 
-        var lastGame = storedHistoryList.Last();
-        var xMoveHistory = Tools.ConvertIntegerToByteArray(lastGame.XMoveHistory, lastGame.XMoveHistory.ToString().Length);
-        var oMoveHistory = Tools.ConvertIntegerToByteArray(lastGame.OMoveHistory, lastGame.OMoveHistory.ToString().Length);
+        List<History> historyListWithPlayerName = new List<History>();
+        foreach (History history in histories)
+        {
+            if (jsonHistoryService.IsStoredPlayerName(history, playerName))
+            {
+                historyListWithPlayerName.Add(history);
+            }
+        }
+        return historyListWithPlayerName;
+    }
 
-        ConsoleUserInterface.ViewTicTacToeBoard(xMoveHistory, oMoveHistory);
+    public static void WriteScrollChosenGame(List<History> historyList)
+    {
+        ConsoleOutputs.DisplayLine(Constants.chooseAGameLine);
+        int chosenGame = ConsoleInputs.GetConsoleByteInput();
+        chosenGame--;;
+        byte[] fixedXMoveHistory, oMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].XMoveHistory, historyList[chosenGame].XMoveHistory.ToString().Length);
+        byte[] fixedOMoveHistory, xMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].OMoveHistory, historyList[chosenGame].OMoveHistory.ToString().Length);
+        fixedOMoveHistory = oMoveHistory; fixedXMoveHistory = xMoveHistory;
+
+        Console.Clear();
+        ConsoleOutputs.ScrollGameStateAndTextLines(xMoveHistory, oMoveHistory);
+
+        int turn = Tools.CurrentTurn(xMoveHistory, oMoveHistory);
+
+        bool EnterPressed = false;
+        while(!EnterPressed)
+        {
+            var pressedKey = Console.ReadKey().Key;
+            if (pressedKey == ConsoleKey.LeftArrow)
+            {
+                if (Tools.IsInputOutOfBoundsError(turn)) { ConsoleOutputs.DisplayLine(Constants.invalidInputLine); }
+                else if (turn%2 != 0)
+                {
+                    xMoveHistory[TurnNumberToCorrectIndex(turn)] = 0;
+                }
+                else
+                {
+                    oMoveHistory[TurnNumberToCorrectIndex(turn)] = 0;
+                }
+
+                Console.Clear();
+                ConsoleOutputs.ScrollGameStateAndTextLines(xMoveHistory, oMoveHistory);
+                turn--;
+            }
+            else if (pressedKey == ConsoleKey.RightArrow)
+            {
+                if (Tools.IsInputOutOfBoundsError(turn)) { ConsoleOutputs.DisplayLine(Constants.invalidInputLine); turn--; }
+                else if (turn%2 != 0)
+                {
+                    xMoveHistory[TurnNumberToCorrectIndex(turn)] = fixedXMoveHistory[TurnNumberToCorrectIndex(turn)];
+                }
+                else
+                {
+                    oMoveHistory[TurnNumberToCorrectIndex(turn)] = fixedOMoveHistory[TurnNumberToCorrectIndex(turn)];
+                }
+
+                Console.Clear();
+                ConsoleOutputs.ScrollGameStateAndTextLines(xMoveHistory, oMoveHistory);
+                turn++;
+            }
+            else if (pressedKey == ConsoleKey.Enter)
+            {
+                EnterPressed = true;
+            }
+        }
+    }
+
+    private static int TurnNumberToCorrectIndex(int turn)
+    {
+        if (turn % 2 != 0) { return (turn - 1) / 2; }
+        else { return (turn / 2) - 1; }
+    }
+
+    private bool IsStoredPlayerName(History history, string playerName)
+    {
+        if (history.PlayerXName == playerName || history.PlayerOName == playerName) { return true; }
+        else { return false; }
     }
 
     public void WriteHistoryFile(History history)
     {
-        var storedHistoryList = Tools.GetJsonHistoryList(Constants.fileName);
+        var storedHistoryList = ReadHistoryFile(Constants.fileName);
 
         storedHistoryList.Add(history);
         var updatedJson = JsonSerializer.Serialize(storedHistoryList);
@@ -68,9 +136,11 @@ public class JsonHistoryService : IHistoryService
         File.WriteAllText(Constants.fileName, updatedJson);
     }
 
-    public void ReadHistoryFile(string path)
+    public List<History> ReadHistoryFile(string path)
     {
-        Console.WriteLine(File.ReadAllText(path));
+        string jsonString = File.ReadAllText(path);
+        var storedHistoryList = JsonSerializer.Deserialize<List<History>>(jsonString);
+        return storedHistoryList;
     }
 
 }
