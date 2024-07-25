@@ -10,6 +10,19 @@ namespace TicTacToeGame;
 
 public class ConsoleOutputs
 {
+    public static void DisplayWinOrDraw(byte[] xMoveHistory, byte[] oMoveHistory, string playerXName, string playerOName)
+    {
+        if (Tools.IsWinCondition(xMoveHistory, oMoveHistory))
+        {
+            string[] winnerLoser = Tools.OrderNamesToWinnerLoser(xMoveHistory, oMoveHistory, playerXName, playerOName);
+            Console.WriteLine(winnerLoser[0] + Constants.wonVsLine + winnerLoser[1]);
+        }
+        else
+        {
+            Console.WriteLine(Constants.gameDrawLine + playerXName + Constants.andLine + playerOName);
+        }
+    }
+
     public static void ViewTicTacToeBoard(byte[] xSquares, byte[] oSquares)
     {
         char[] gameState = new char[9];
@@ -36,39 +49,16 @@ public class ConsoleOutputs
         Console.WriteLine(line);
     }
 
-    public static void GameWonByLine(string winner, string loser)
-    {
-        Console.WriteLine(winner + Constants.wonVsLine + loser);
-    }
-
-    public static void GameDrawLine(string playerX, string playerO)
-    {
-        Console.WriteLine(Constants.gameDrawLine + playerX + Constants.andLine + playerO);
-    }
-
     public static void GameHistoryNumberDateLine(DateTime date, int gameNumber)
     {
         Console.WriteLine(Constants.gameNumberLine + gameNumber);
         Console.WriteLine(date);
     }
 
-    public static void ScrollGameStateAndTextLines(byte[] xMoveHistory, byte[] oMoveHistory)
+    public static void ScrollGameExplanationLines()
     {
         DisplayLine(Constants.exitExplanationLine);
         DisplayLine(Constants.historyScrollExplanationline);
-        ViewTicTacToeBoard(xMoveHistory, oMoveHistory);
-    }
-
-    public static void DeclareWinnerLine(byte[] xSquares, byte[] oSquares)
-    {
-        if (xSquares.Length > oSquares.Length)
-        {
-            Console.WriteLine("X Wins!");
-        }
-        else
-        {
-            Console.WriteLine("O wins!");
-        }
     }
 
     public static void DisplayGameState(char[] gameState)
@@ -91,8 +81,4 @@ public class ConsoleOutputs
         Console.WriteLine("7 | 8 | 9 ");
     }
 
-    public static void PlayerNameInputLine(string player)
-    {
-        Console.WriteLine("Player " + player + " name:");
-    }
 }

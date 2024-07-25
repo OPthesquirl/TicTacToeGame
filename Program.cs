@@ -21,25 +21,23 @@ internal class Program
 
         PlayGame(xSquares, oSquares);
 
-        if (Tools.IsDraw(xSquares, oSquares))
-        {
-            ConsoleOutputs.ViewTicTacToeBoard(xSquares, oSquares);
-            ConsoleOutputs.GameDrawLine(playerNames[0], playerNames[1]);
-        }
+        ConsoleOutputs.DisplayWinOrDraw(xSquares, oSquares, playerNames[0], playerNames[1]);
 
-        Tools.StoreHistoryFile(playerNames[0], playerNames[1], xSquares, oSquares);
+        History history = historyService.CreateHistoryFile(playerNames[0], playerNames[1], xSquares, oSquares);
+        historyService.WriteHistoryFile(history);
 
-        Tools.ExitLoop();
+        ConsoleUserInterface.ExitLoop();
 
     }
 
     static void DisplayHistoriesLoop(IHistoryService historyService)
     {
+        ConsoleOutputs.DisplayLine(Constants.historySearchByNameLine);
         while (!ConsoleInputs.IsKeyPressed(ConsoleKey.Backspace))
         {
-            ConsoleOutputs.DisplayLine(Constants.historySearchByNameLine);
             var input = ConsoleInputs.GetConsoleStringInput();
             historyService.DisplayGamesByPlayerName(input);
+            Console.WriteLine("Press backspace to exit, Input name for another search");
         }
     }
 
@@ -50,16 +48,10 @@ internal class Program
             PlayTurn(xSquares, oSquares);
             ConsoleOutputs.ViewTicTacToeBoard(xSquares, oSquares);
         }
-        if (Tools.IsWinCondition(xSquares, oSquares))
-        {
-            ConsoleOutputs.DeclareWinnerLine(xSquares, oSquares);
-        }
     }
 
     static void PlayTurn(byte[] xSquares, byte[] oSquares)
     {
-        int xIndex = Tools.FirstEmptyIndex(xSquares);
-        int oIndex = Tools.FirstEmptyIndex(oSquares);
 
         if (Tools.CurrentTurn(xSquares, oSquares) % 2 != 0) { ConsoleOutputs.DisplayLine(Constants.oTurnLine); }
         else { ConsoleOutputs.DisplayLine(Constants.xTurnLine); }

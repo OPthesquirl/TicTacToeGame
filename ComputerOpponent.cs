@@ -19,7 +19,7 @@ namespace TicTacToeGame
             if (playerXorO == "o" || playerXorO == "O") { PlayAlgorithmAsX(playerName); }
             else { PlayAlgorithmAsO(playerName); }
 
-            Tools.ExitLoop();
+            ConsoleUserInterface.ExitLoop();
         }
 
         private static byte MoveInputWithErrorCheck(byte[] xSquares, byte[] oSquares)
@@ -82,7 +82,9 @@ namespace TicTacToeGame
                 Console.WriteLine(Constants.gameDrawLine);
             }
 
-            Tools.StoreHistoryFile("The Algorithm", playerName, xSquares, oSquares);
+            IHistoryService historyService = new JsonHistoryService();
+            History history = historyService.CreateHistoryFile("The Algorithm", playerName, xSquares, oSquares);
+            historyService.WriteHistoryFile(history);
         }
 
         public static void PlayAlgorithmAsO(string playerName)

@@ -10,11 +10,6 @@ namespace TicTacToeGame;
 
 internal class Tools
 {
-    public static void ExitLoop()
-    {
-        ConsoleOutputs.DisplayLine(Constants.exitExplanationLine);
-        while (!ConsoleInputs.IsKeyPressed(ConsoleKey.Enter)) { }
-    }
     public static bool IsWinCondition(byte[] xSquares, byte[] oSquares)
     {
         foreach (var element in Constants.winningCombinationsOfCoördinates)
@@ -29,15 +24,6 @@ internal class Tools
             }
         }
 
-        return false;
-    }
-
-    public static bool IsDraw(byte[] xSquares, byte[] oSquares)
-    {
-        if (!IsWinCondition(xSquares, oSquares) && xSquares.Last() != 0)
-        {
-            return true;
-        }
         return false;
     }
 
@@ -131,6 +117,7 @@ internal class Tools
         }
         return false;
     }
+
     public static bool IsOccupiedSquare(byte input, byte[] xSquares, byte[] oSquares)
     {
         foreach (var element in xSquares)
@@ -170,19 +157,6 @@ internal class Tools
         }
 
         return false;
-    }
-
-    public static byte FirstEmptyIndex(byte[] array)
-    {
-        byte i;
-        for (i = 0; i < array.Length; i++)
-        {
-            if (array[i] == 0)
-            {
-                return i;
-            }
-        }
-        return i;
     }
 
 }

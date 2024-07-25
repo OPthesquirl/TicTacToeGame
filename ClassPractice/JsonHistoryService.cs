@@ -6,11 +6,22 @@ namespace TicTacToeGame.ClassPractice;
 
 public class JsonHistoryService : IHistoryService
 {
+    public History CreateHistoryFile(string playerXName, string playerOName, byte[] xMoveHistory, byte[] oMoveHistory)
+    {
+        var history = new History()
+        {
+            Date = DateTime.Now,
+            PlayerXName = playerXName,
+            PlayerOName = playerOName,
+            XMoveHistory = Tools.ByteArrayToInt(xMoveHistory),
+            OMoveHistory = Tools.ByteArrayToInt(oMoveHistory)
+        };
+        return history;
+    }
 
     public void DisplayGamesByPlayerName(string playerName)
     {
-        var storedHistoryList = ReadHistoryFile(Constants.fileName);
-        List<History> historyListWithPlayerName = GetHistoriesWithPlayerName(storedHistoryList, playerName);
+        List<History> historyListWithPlayerName = GetHistoriesWithPlayerName(ReadHistoryFile(Constants.fileName), playerName);
 
         if (historyListWithPlayerName.Count == 0) { ConsoleOutputs.DisplayLine(Constants.Error404Line); }
         else
@@ -22,28 +33,40 @@ public class JsonHistoryService : IHistoryService
                 byte[] oMoveHistory = Tools.IntegerToByteArray(history.OMoveHistory, history.OMoveHistory.ToString().Length);
 
                 ConsoleOutputs.GameHistoryNumberDateLine(history.Date, gamenumber++);
-
-                if (Tools.IsWinCondition(xMoveHistory, oMoveHistory))
-                {
-                    string[] winnerLoser = Tools.OrderNamesToWinnerLoser(xMoveHistory, oMoveHistory, history.PlayerXName, history.PlayerOName);
-                    ConsoleOutputs.GameWonByLine(winnerLoser[0], winnerLoser[1]);
-                }
-                else
-                {
-                    ConsoleOutputs.GameDrawLine(history.PlayerXName, history.PlayerOName);
-                }
-
+                ConsoleOutputs.DisplayWinOrDraw(xMoveHistory, oMoveHistory, history.PlayerXName, history.PlayerOName);
                 ConsoleOutputs.ViewTicTacToeBoard(xMoveHistory, oMoveHistory);
             }
 
             ConsoleOutputs.DisplayLine(Constants.pressEnterForSpecificGameLine);
-            if (ConsoleInputs.IsKeyPressed(ConsoleKey.Enter)) { WriteScrollChosenGame(historyListWithPlayerName); }
+            if (ConsoleInputs.IsKeyPressed(ConsoleKey.Enter)) 
+            {
+                int chosenGame = ConsoleUserInterface.ChooseAndDisplayGameHistoryFile(historyListWithPlayerName);
+                ScrollChosenGame(historyListWithPlayerName, chosenGame);
+            }
         }
     }
 
-    public static List<History> GetHistoriesWithPlayerName(List<History> histories, string playerName)
+    public void WriteHistoryFile(History history)
     {
-        IHistoryService historyService = new JsonHistoryService();
+        var storedHistoryList = ReadHistoryFile(Constants.fileName);
+
+        storedHistoryList.Add(history);
+        var updatedJson = JsonSerializer.Serialize(storedHistoryList);
+
+        File.WriteAllText(Constants.fileName, updatedJson);
+    }
+
+    public List<History> ReadHistoryFile(string path)
+    {
+        string jsonString = File.ReadAllText(path);
+        var storedHistoryList = JsonSerializer.Deserialize<List<History>>(jsonString);
+        return storedHistoryList;
+    }
+
+
+
+    private static List<History> GetHistoriesWithPlayerName(List<History> histories, string playerName)
+    {
         JsonHistoryService jsonHistoryService = new JsonHistoryService();
 
         List<History> historyListWithPlayerName = new List<History>();
@@ -57,28 +80,24 @@ public class JsonHistoryService : IHistoryService
         return historyListWithPlayerName;
     }
 
-    public static void WriteScrollChosenGame(List<History> historyList)
+    private static void ScrollChosenGame(List<History> historyList, int chosenGame)
     {
-        ConsoleOutputs.DisplayLine(Constants.chooseAGameLine);
-        int chosenGame = ConsoleInputs.GetConsoleByteInput();
-        chosenGame--;;
-        byte[] fixedXMoveHistory, oMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].XMoveHistory, historyList[chosenGame].XMoveHistory.ToString().Length);
-        byte[] fixedOMoveHistory, xMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].OMoveHistory, historyList[chosenGame].OMoveHistory.ToString().Length);
-        fixedOMoveHistory = oMoveHistory; fixedXMoveHistory = xMoveHistory;
 
-        Console.Clear();
-        ConsoleOutputs.ScrollGameStateAndTextLines(xMoveHistory, oMoveHistory);
+        byte[] xMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].XMoveHistory, historyList[chosenGame].XMoveHistory.ToString().Length);
+        byte[] oMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].OMoveHistory, historyList[chosenGame].OMoveHistory.ToString().Length);
+        byte[] fixedXMoveHistory  = Tools.IntegerToByteArray(historyList[chosenGame].XMoveHistory, historyList[chosenGame].XMoveHistory.ToString().Length);
+        byte[] fixedOMoveHistory  = Tools.IntegerToByteArray(historyList[chosenGame].OMoveHistory, historyList[chosenGame].OMoveHistory.ToString().Length);
 
         int turn = Tools.CurrentTurn(xMoveHistory, oMoveHistory);
 
         bool EnterPressed = false;
-        while(!EnterPressed)
+        while (!EnterPressed)
         {
             var pressedKey = Console.ReadKey().Key;
             if (pressedKey == ConsoleKey.LeftArrow)
             {
                 if (Tools.IsInputOutOfBoundsError(turn)) { ConsoleOutputs.DisplayLine(Constants.invalidInputLine); }
-                else if (turn%2 != 0)
+                else if (turn % 2 != 0)
                 {
                     xMoveHistory[TurnNumberToCorrectIndex(turn)] = 0;
                 }
@@ -88,13 +107,14 @@ public class JsonHistoryService : IHistoryService
                 }
 
                 Console.Clear();
-                ConsoleOutputs.ScrollGameStateAndTextLines(xMoveHistory, oMoveHistory);
+                ConsoleOutputs.ScrollGameExplanationLines();
+                ConsoleOutputs.ViewTicTacToeBoard(xMoveHistory, oMoveHistory);
                 turn--;
             }
             else if (pressedKey == ConsoleKey.RightArrow)
             {
                 if (Tools.IsInputOutOfBoundsError(turn)) { ConsoleOutputs.DisplayLine(Constants.invalidInputLine); turn--; }
-                else if (turn%2 != 0)
+                else if (turn % 2 != 0)
                 {
                     xMoveHistory[TurnNumberToCorrectIndex(turn)] = fixedXMoveHistory[TurnNumberToCorrectIndex(turn)];
                 }
@@ -104,7 +124,8 @@ public class JsonHistoryService : IHistoryService
                 }
 
                 Console.Clear();
-                ConsoleOutputs.ScrollGameStateAndTextLines(xMoveHistory, oMoveHistory);
+                ConsoleOutputs.ScrollGameExplanationLines();
+                ConsoleOutputs.ViewTicTacToeBoard(xMoveHistory, oMoveHistory);
                 turn++;
             }
             else if (pressedKey == ConsoleKey.Enter)
@@ -124,23 +145,6 @@ public class JsonHistoryService : IHistoryService
     {
         if (history.PlayerXName == playerName || history.PlayerOName == playerName) { return true; }
         else { return false; }
-    }
-
-    public void WriteHistoryFile(History history)
-    {
-        var storedHistoryList = ReadHistoryFile(Constants.fileName);
-
-        storedHistoryList.Add(history);
-        var updatedJson = JsonSerializer.Serialize(storedHistoryList);
-
-        File.WriteAllText(Constants.fileName, updatedJson);
-    }
-
-    public List<History> ReadHistoryFile(string path)
-    {
-        string jsonString = File.ReadAllText(path);
-        var storedHistoryList = JsonSerializer.Deserialize<List<History>>(jsonString);
-        return storedHistoryList;
     }
 
 }

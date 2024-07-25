@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TicTacToeGame.ClassPractice;
 
 namespace TicTacToeGame;
 
@@ -10,10 +11,10 @@ internal class ConsoleUserInterface
 {
     public static string[] TakeUserNames()
     {
-        ConsoleOutputs.PlayerNameInputLine("X");
+        ConsoleOutputs.DisplayLine("Player X name:");
         string playerXName = ConsoleInputs.GetConsoleStringInput();
 
-        ConsoleOutputs.PlayerNameInputLine("O");
+        ConsoleOutputs.DisplayLine("Player O name:");
         string playerOName = ConsoleInputs.GetConsoleStringInput();
 
         return [playerXName, playerOName];
@@ -30,5 +31,26 @@ internal class ConsoleUserInterface
         return input;
     }
 
-    
+    public static int ChooseAndDisplayGameHistoryFile(List<History> historyList)
+    {
+        ConsoleOutputs.DisplayLine(Constants.chooseAGameLine);
+        int chosenGame = ConsoleInputs.GetConsoleByteInput();
+
+
+        byte[] xMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].XMoveHistory, historyList[chosenGame].XMoveHistory.ToString().Length);
+        byte[] oMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].OMoveHistory, historyList[chosenGame].OMoveHistory.ToString().Length);
+
+        Console.Clear();
+        ConsoleOutputs.ScrollGameExplanationLines();
+        ConsoleOutputs.ViewTicTacToeBoard(xMoveHistory, oMoveHistory);
+
+        return chosenGame;
+    }
+
+    public static void ExitLoop()
+    {
+        ConsoleOutputs.DisplayLine(Constants.exitExplanationLine);
+        while (!ConsoleInputs.IsKeyPressed(ConsoleKey.Enter)) { }
+    }
+
 }
