@@ -14,20 +14,57 @@ internal class Program
     {
         IHistoryService historyService = new JsonHistoryService();
 
-        DisplayHistoriesLoop(historyService);
+        ConsoleOutputs.DisplayLine(Constants.exitKeyEnterAnyKeyContinueLine);
+        while (!ConsoleInputs.IsKeyPressed(ConsoleKey.Enter))
+        {
+            ConsoleOutputs.DisplayLine("Access: PlayerGame(input: P), computergame(input: C), gameHistory(input: H)");
+            string input = ConsoleInputs.GetConsoleStringInput();
+            if (input == "P" || input == "p") 
+            {
+                PvPGame(historyService);
+            }
+            else if (input == "C" || input == "c") 
+            {
+                ComputerGame(historyService);
+            }
+            else if (input == "H" || input == "h")
+            {
+                DisplayHistoriesLoop(historyService);
+            }
+            ConsoleOutputs.DisplayLine(Constants.exitKeyEnterAnyKeyContinueLine);
+        }
+    }
 
+    private static void PvPGame(IHistoryService historyService)
+    {
         ConsoleOutputs.GameStartExplanation();
         string[] playerNames = ConsoleUserInterface.TakeUserNames();
 
         PlayGame(xSquares, oSquares);
-
         ConsoleOutputs.DisplayWinOrDraw(xSquares, oSquares, playerNames[0], playerNames[1]);
 
         History history = historyService.CreateHistoryFile(playerNames[0], playerNames[1], xSquares, oSquares);
         historyService.WriteHistoryFile(history);
+    }
 
-        ConsoleUserInterface.ExitLoop();
+    private static void ComputerGame(IHistoryService historyService)
+    {
+        string[] playerNames = new string[2];
 
+        ConsoleOutputs.DisplayLine("Input playerName");
+        string playerName = ConsoleInputs.GetConsoleStringInput();
+
+        ConsoleOutputs.DisplayLine("Play as X(input: X), Play as O(input: O)");
+        string input = ConsoleInputs.GetConsoleStringInput();
+
+        if (input == "X" || input == "x") { playerNames = [playerName, "The Algorithm"]; }
+        else if (input == "O" || input == "o") { playerNames = ["The Algorithm", playerName]; }
+        else { ConsoleOutputs.DisplayLine("IsInputError"); }
+
+        byte[][] gameHistory = ComputerOpponent.ComputerGame(input);
+
+        History history = historyService.CreateHistoryFile(playerNames[0], playerNames[1], gameHistory[0], gameHistory[1]);
+        historyService.WriteHistoryFile(history);
     }
 
     static void DisplayHistoriesLoop(IHistoryService historyService)
@@ -56,7 +93,7 @@ internal class Program
         if (Tools.CurrentTurn(xSquares, oSquares) % 2 != 0) { ConsoleOutputs.DisplayLine(Constants.oTurnLine); }
         else { ConsoleOutputs.DisplayLine(Constants.xTurnLine); }
 
-        byte input = ConsoleUserInterface.TakeUserInput(xSquares, oSquares);
+        byte input = ConsoleUserInterface.MoveInputWithErrorCheck(xSquares, oSquares);
         if (Tools.CurrentTurn(xSquares, oSquares) % 2 == 0)
         {
             xSquares[xSquares.ToList().IndexOf(0)] = input;

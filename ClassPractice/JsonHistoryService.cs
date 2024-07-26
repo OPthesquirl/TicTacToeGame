@@ -85,8 +85,9 @@ public class JsonHistoryService : IHistoryService
 
         byte[] xMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].XMoveHistory, historyList[chosenGame].XMoveHistory.ToString().Length);
         byte[] oMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].OMoveHistory, historyList[chosenGame].OMoveHistory.ToString().Length);
-        byte[] fixedXMoveHistory  = Tools.IntegerToByteArray(historyList[chosenGame].XMoveHistory, historyList[chosenGame].XMoveHistory.ToString().Length);
-        byte[] fixedOMoveHistory  = Tools.IntegerToByteArray(historyList[chosenGame].OMoveHistory, historyList[chosenGame].OMoveHistory.ToString().Length);
+        byte[] fixedXMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].XMoveHistory, historyList[chosenGame].XMoveHistory.ToString().Length);
+        byte[] fixedOMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].OMoveHistory, historyList[chosenGame].OMoveHistory.ToString().Length);
+
 
         int turn = Tools.CurrentTurn(xMoveHistory, oMoveHistory);
 
@@ -97,35 +98,21 @@ public class JsonHistoryService : IHistoryService
             if (pressedKey == ConsoleKey.LeftArrow)
             {
                 if (Tools.IsInputOutOfBoundsError(turn)) { ConsoleOutputs.DisplayLine(Constants.invalidInputLine); }
-                else if (turn % 2 != 0)
-                {
-                    xMoveHistory[TurnNumberToCorrectIndex(turn)] = 0;
-                }
-                else
-                {
-                    oMoveHistory[TurnNumberToCorrectIndex(turn)] = 0;
-                }
+                else if (turn % 2 != 0) { xMoveHistory[TurnNumberToCorrectIndex(turn)] = 0; }
+                else { oMoveHistory[TurnNumberToCorrectIndex(turn)] = 0; }
 
                 Console.Clear();
-                ConsoleOutputs.ScrollGameExplanationLines();
-                ConsoleOutputs.ViewTicTacToeBoard(xMoveHistory, oMoveHistory);
+                ConsoleOutputs.ScrollHistoryGameDisplay(xMoveHistory, oMoveHistory);
                 turn--;
             }
             else if (pressedKey == ConsoleKey.RightArrow)
             {
                 if (Tools.IsInputOutOfBoundsError(turn)) { ConsoleOutputs.DisplayLine(Constants.invalidInputLine); turn--; }
-                else if (turn % 2 != 0)
-                {
-                    xMoveHistory[TurnNumberToCorrectIndex(turn)] = fixedXMoveHistory[TurnNumberToCorrectIndex(turn)];
-                }
-                else
-                {
-                    oMoveHistory[TurnNumberToCorrectIndex(turn)] = fixedOMoveHistory[TurnNumberToCorrectIndex(turn)];
-                }
+                else if (turn % 2 != 0) { xMoveHistory[TurnNumberToCorrectIndex(turn)] = fixedXMoveHistory[TurnNumberToCorrectIndex(turn)]; }
+                else { oMoveHistory[TurnNumberToCorrectIndex(turn)] = fixedOMoveHistory[TurnNumberToCorrectIndex(turn)]; }
 
                 Console.Clear();
-                ConsoleOutputs.ScrollGameExplanationLines();
-                ConsoleOutputs.ViewTicTacToeBoard(xMoveHistory, oMoveHistory);
+                ConsoleOutputs.ScrollHistoryGameDisplay(xMoveHistory, oMoveHistory);
                 turn++;
             }
             else if (pressedKey == ConsoleKey.Enter)

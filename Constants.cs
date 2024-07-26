@@ -10,6 +10,7 @@ internal class Constants
 {
     //Constants for logic
     static public int maximumNumberOfTurnsAndInputValues = 9;
+    static public int maximumInputValue = 9;
     static public int minimumInputValue = 1;
 
     static public byte[][] winningCombinationsOfCoördinates = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7], [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]];
@@ -20,6 +21,7 @@ internal class Constants
     static public string invalidInputLine = "Invalid Input";
     static public string exitExplanationLine = "Press Enter to continue/exit";
     static public string historyScrollExplanationline = "Press arrow keys to scroll through the gameHistory";
+    static public string exitKeyEnterAnyKeyContinueLine = "Press enter to exit, press any key to continue";
 
     //Constants for DisplayGameState
     static public char xChar = 'X';

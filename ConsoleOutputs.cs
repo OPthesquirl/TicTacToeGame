@@ -55,10 +55,11 @@ public class ConsoleOutputs
         Console.WriteLine(date);
     }
 
-    public static void ScrollGameExplanationLines()
+    public static void ScrollHistoryGameDisplay(byte[] xMoveHistory, byte[] oMoveHistory)
     {
         DisplayLine(Constants.exitExplanationLine);
         DisplayLine(Constants.historyScrollExplanationline);
+        ViewTicTacToeBoard(xMoveHistory, oMoveHistory);
     }
 
     public static void DisplayGameState(char[] gameState)
