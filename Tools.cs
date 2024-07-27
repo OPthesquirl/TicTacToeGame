@@ -27,20 +27,6 @@ internal class Tools
         return false;
     }
 
-    public static void StoreHistoryFile(string playerXName, string playerOName, byte[]xMoveHistory, byte[] oMoveHistory)
-    {
-        var history = new History()
-        {
-            Date = DateTime.Now,
-            PlayerXName = playerXName,
-            PlayerOName = playerOName,
-            XMoveHistory = Tools.ByteArrayToInt(xMoveHistory),
-            OMoveHistory = Tools.ByteArrayToInt(oMoveHistory)
-        };
-        IHistoryService historyService = new JsonHistoryService();
-        historyService.WriteHistoryFile(history);
-    }
-
     public static string[] OrderNamesToWinnerLoser(byte[] xMoveHistory, byte[] oMoveHistory, string playerXName, string playerOName)
     {
         foreach (var element in Constants.winningCombinationsOfCoördinates)
@@ -108,14 +94,25 @@ internal class Tools
         return false;
     }
 
-    public static bool IsInputOutOfBoundsError(int input)
+    public static bool IsXTurn(byte[] xSquares, byte[] oSquares)
     {
-        if (input > Constants.maximumNumberOfTurnsAndInputValues || input < Constants.minimumInputValue)
+        if (xSquares.Last() != 0 || xSquares.First() == 0 || xSquares.ToList().IndexOf(0) == oSquares.ToList().IndexOf(0))
         {
             return true;
-
         }
-        return false;
+        else
+        {
+            return false;
+        }
+    }
+
+    public static bool IsInputOutOfBoundsError(int input)
+    {
+        if (input <= Constants.maximumNumberOfTurnsAndInputValues || input >= Constants.minimumInputValue)
+        {
+            return false;
+        }
+        return true;
     }
 
     public static bool IsOccupiedSquare(byte input, byte[] xSquares, byte[] oSquares)

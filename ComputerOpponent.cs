@@ -96,7 +96,7 @@ namespace TicTacToeGame
 
                 if (Tools.IsWinCondition(xSquares, oSquares) || xSquares.Last() != 0) { break; }
 
-                oSquares = TryWinCondition(xSquares, oSquares, index);
+                oSquares = TryForWinCondition(xSquares, oSquares, index);
                 if (oSquares[index] == 0) 
                 { 
                     oSquares[index] = FindBestEmptySquare(xSquares, oSquares); 
@@ -109,14 +109,15 @@ namespace TicTacToeGame
 
             Console.Clear();
             ConsoleOutputs.ViewTicTacToeBoard(xSquares, oSquares);
+            playerNames = Tools.OrderNamesToWinnerLoser(xSquares, oSquares, playerNames[0], playerNames[1]);
             ConsoleOutputs.DisplayWinOrDraw(xSquares, oSquares, playerNames[0], playerNames[1]);
 
             return [xSquares, oSquares];
         }
 
-        private static byte[] TryWinCondition(byte[] xSquares, byte[] oSquares, int index)
+        private static byte[] TryForWinCondition(byte[] xSquares, byte[] oSquares, int index)
         {
-            foreach (var item in EmptyIndexes(xSquares, oSquares))
+            foreach (var item in EmptySquaresArray(xSquares, oSquares))
             {
                 if (item == 0) { break; }
 
@@ -138,9 +139,9 @@ namespace TicTacToeGame
             return oSquares;
         }
 
-        private static byte[] EmptyIndexes(byte[] xSquares, byte[] oSquares)
+        private static byte[] EmptySquaresArray(byte[] xSquares, byte[] oSquares)
         {
-            byte[] emptyIndexes = new byte[9];
+            byte[] emptyIndexes = new byte[8];
 
             for (byte i = (byte)Constants.minimumInputValue; i <= (byte)Constants.maximumInputValue; i++)
             {

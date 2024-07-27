@@ -22,14 +22,18 @@ public class JsonHistoryService : IHistoryService
     {
         List<History> historyListWithPlayerName = GetHistoriesWithPlayerName(ReadHistoryFile(Constants.fileName), playerName);
 
+
         if (historyListWithPlayerName.Count == 0) { ConsoleOutputs.DisplayLine(Constants.Error404Line); }
         else
         {
             int gamenumber = 1;
+            byte[] xMoveHistory;
+            byte[] oMoveHistory;
+
             foreach (History history in historyListWithPlayerName)
             {
-                byte[] xMoveHistory = Tools.IntegerToByteArray(history.XMoveHistory, history.XMoveHistory.ToString().Length);
-                byte[] oMoveHistory = Tools.IntegerToByteArray(history.OMoveHistory, history.OMoveHistory.ToString().Length);
+                xMoveHistory = Tools.IntegerToByteArray(history.XMoveHistory, history.XMoveHistory.ToString().Length);
+                oMoveHistory = Tools.IntegerToByteArray(history.OMoveHistory, history.OMoveHistory.ToString().Length);
 
                 ConsoleOutputs.GameHistoryNumberDateLine(history.Date, gamenumber++);
                 ConsoleOutputs.DisplayWinOrDraw(xMoveHistory, oMoveHistory, history.PlayerXName, history.PlayerOName);
@@ -61,8 +65,6 @@ public class JsonHistoryService : IHistoryService
         var storedHistoryList = JsonSerializer.Deserialize<List<History>>(jsonString);
         return storedHistoryList;
     }
-
-
 
     private static List<History> GetHistoriesWithPlayerName(List<History> histories, string playerName)
     {
@@ -96,7 +98,7 @@ public class JsonHistoryService : IHistoryService
                 { 
                     ConsoleOutputs.DisplayLine(Constants.invalidInputLine);
                 }
-                else if (turn % 2 != 0) 
+                else if (Tools.IsXTurn(xMoveHistory, oMoveHistory)) 
                 { 
                     xMoveHistory[TurnNumberToCorrectIndex(turn)] = 0; 
                 }
@@ -115,8 +117,14 @@ public class JsonHistoryService : IHistoryService
                 {
                     ConsoleOutputs.DisplayLine(Constants.invalidInputLine); turn--; 
                 }
-                else if (turn % 2 != 0) { xMoveHistory[TurnNumberToCorrectIndex(turn)] = fixedXMoveHistory[TurnNumberToCorrectIndex(turn)]; }
-                else { oMoveHistory[TurnNumberToCorrectIndex(turn)] = fixedOMoveHistory[TurnNumberToCorrectIndex(turn)]; }
+                else if (Tools.IsXTurn(xMoveHistory, oMoveHistory))
+                {
+                    xMoveHistory[TurnNumberToCorrectIndex(turn)] = fixedXMoveHistory[TurnNumberToCorrectIndex(turn)]; 
+                }
+                else 
+                { 
+                    oMoveHistory[TurnNumberToCorrectIndex(turn)] = fixedOMoveHistory[TurnNumberToCorrectIndex(turn)]; 
+                }
 
                 Console.Clear();
                 ConsoleOutputs.ScrollHistoryGameDisplay(xMoveHistory, oMoveHistory);

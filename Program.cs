@@ -49,18 +49,29 @@ internal class Program
 
     private static void ComputerGame(IHistoryService historyService)
     {
-        ConsoleOutputs.DisplayLine("Input playerName");
+        ConsoleOutputs.DisplayLine(Constants.inputPlayerName);
         string playerName = ConsoleInputs.GetConsoleStringInput();
-        string[] playerNames = new string[2];
+        string[] playerNames = ["X", "O"];
+        string playerColor;
 
-        ConsoleOutputs.DisplayLine("Play as X(input: X), Play as O(input: O)");
-        string input = ConsoleInputs.GetConsoleStringInput();
+        while (true)
+        {
+            ConsoleOutputs.DisplayLine("Play as X(input: X), Play as O(input: O)");
+            playerColor = ConsoleInputs.GetConsoleStringInput();
+            if (playerColor == "X" || playerColor == "x")
+            {
+                playerNames = [playerName, Constants.computerName];
+                break;
+            }
+            else if (playerColor == "O" || playerColor == "o")
+            {
+                playerNames = [Constants.computerName, playerName];
+                break;
+            }
+            else { ConsoleOutputs.DisplayLine("IsInputError"); }
+        }
 
-        if (input == "X" || input == "x") { playerNames = [playerName, "The Algorithm"]; }
-        else if (input == "O" || input == "o") { playerNames = ["The Algorithm", playerName]; }
-        else { ConsoleOutputs.DisplayLine("IsInputError"); }
-
-        byte[][] gameHistory = ComputerOpponent.ComputerGame(input, playerNames);
+        byte[][] gameHistory = ComputerOpponent.ComputerGame(playerColor, playerNames);
 
         History history = historyService.CreateHistoryFile(playerNames[0], playerNames[1], gameHistory[0], gameHistory[1]);
         historyService.WriteHistoryFile(history);
@@ -88,12 +99,11 @@ internal class Program
 
     static void PlayTurn(byte[] xSquares, byte[] oSquares)
     {
-
-        if (Tools.CurrentTurn(xSquares, oSquares) % 2 != 0) { ConsoleOutputs.DisplayLine(Constants.oTurnLine); }
-        else { ConsoleOutputs.DisplayLine(Constants.xTurnLine); }
+        if (Tools.IsXTurn(xSquares, oSquares)) { ConsoleOutputs.DisplayLine(Constants.xTurnLine); }
+        else { ConsoleOutputs.DisplayLine(Constants.oTurnLine); }
 
         byte input = ConsoleUserInterface.MoveInputWithErrorCheck(xSquares, oSquares);
-        if (Tools.CurrentTurn(xSquares, oSquares) % 2 == 0)
+        if (Tools.IsXTurn(xSquares, oSquares))
         {
             xSquares[xSquares.ToList().IndexOf(0)] = input;
             return;
