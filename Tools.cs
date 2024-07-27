@@ -45,7 +45,7 @@ internal class Tools
     {
         foreach (var element in Constants.winningCombinationsOfCoördinates)
         {
-            if (Tools.IsSubsetOf(element, xMoveHistory))
+            if (IsSubsetOf(element, xMoveHistory))
             {
                 return [playerXName, playerOName];
             }

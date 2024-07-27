@@ -49,10 +49,9 @@ internal class Program
 
     private static void ComputerGame(IHistoryService historyService)
     {
-        string[] playerNames = new string[2];
-
         ConsoleOutputs.DisplayLine("Input playerName");
         string playerName = ConsoleInputs.GetConsoleStringInput();
+        string[] playerNames = new string[2];
 
         ConsoleOutputs.DisplayLine("Play as X(input: X), Play as O(input: O)");
         string input = ConsoleInputs.GetConsoleStringInput();
@@ -61,7 +60,7 @@ internal class Program
         else if (input == "O" || input == "o") { playerNames = ["The Algorithm", playerName]; }
         else { ConsoleOutputs.DisplayLine("IsInputError"); }
 
-        byte[][] gameHistory = ComputerOpponent.ComputerGame(input);
+        byte[][] gameHistory = ComputerOpponent.ComputerGame(input, playerNames);
 
         History history = historyService.CreateHistoryFile(playerNames[0], playerNames[1], gameHistory[0], gameHistory[1]);
         historyService.WriteHistoryFile(history);
@@ -72,7 +71,7 @@ internal class Program
         ConsoleOutputs.DisplayLine(Constants.historySearchByNameLine);
         while (!ConsoleInputs.IsKeyPressed(ConsoleKey.Backspace))
         {
-            var input = ConsoleInputs.GetConsoleStringInput();
+            var input = Console.ReadLine();
             historyService.DisplayGamesByPlayerName(input);
             Console.WriteLine("Press backspace to exit, Input name for another search");
         }

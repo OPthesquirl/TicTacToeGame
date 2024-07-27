@@ -8,7 +8,7 @@ public class JsonHistoryService : IHistoryService
 {
     public History CreateHistoryFile(string playerXName, string playerOName, byte[] xMoveHistory, byte[] oMoveHistory)
     {
-        var history = new History()
+        return new History()
         {
             Date = DateTime.Now,
             PlayerXName = playerXName,
@@ -16,7 +16,6 @@ public class JsonHistoryService : IHistoryService
             XMoveHistory = Tools.ByteArrayToInt(xMoveHistory),
             OMoveHistory = Tools.ByteArrayToInt(oMoveHistory)
         };
-        return history;
     }
 
     public void DisplayGamesByPlayerName(string playerName)
@@ -40,7 +39,7 @@ public class JsonHistoryService : IHistoryService
             ConsoleOutputs.DisplayLine(Constants.pressEnterForSpecificGameLine);
             if (ConsoleInputs.IsKeyPressed(ConsoleKey.Enter)) 
             {
-                int chosenGame = ConsoleUserInterface.ChooseAndDisplayGameHistoryFile(historyListWithPlayerName);
+                var chosenGame = ConsoleUserInterface.ChooseAndDisplayGameHistoryFile(historyListWithPlayerName);
                 ScrollChosenGame(historyListWithPlayerName, chosenGame);
             }
         }
@@ -67,12 +66,10 @@ public class JsonHistoryService : IHistoryService
 
     private static List<History> GetHistoriesWithPlayerName(List<History> histories, string playerName)
     {
-        JsonHistoryService jsonHistoryService = new JsonHistoryService();
-
         List<History> historyListWithPlayerName = new List<History>();
         foreach (History history in histories)
         {
-            if (jsonHistoryService.IsStoredPlayerName(history, playerName))
+            if (IsStoredPlayerName(history, playerName))
             {
                 historyListWithPlayerName.Add(history);
             }
@@ -82,12 +79,10 @@ public class JsonHistoryService : IHistoryService
 
     private static void ScrollChosenGame(List<History> historyList, int chosenGame)
     {
-
         byte[] xMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].XMoveHistory, historyList[chosenGame].XMoveHistory.ToString().Length);
         byte[] oMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].OMoveHistory, historyList[chosenGame].OMoveHistory.ToString().Length);
         byte[] fixedXMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].XMoveHistory, historyList[chosenGame].XMoveHistory.ToString().Length);
         byte[] fixedOMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].OMoveHistory, historyList[chosenGame].OMoveHistory.ToString().Length);
-
 
         int turn = Tools.CurrentTurn(xMoveHistory, oMoveHistory);
 
@@ -97,9 +92,18 @@ public class JsonHistoryService : IHistoryService
             var pressedKey = Console.ReadKey().Key;
             if (pressedKey == ConsoleKey.LeftArrow)
             {
-                if (Tools.IsInputOutOfBoundsError(turn)) { ConsoleOutputs.DisplayLine(Constants.invalidInputLine); }
-                else if (turn % 2 != 0) { xMoveHistory[TurnNumberToCorrectIndex(turn)] = 0; }
-                else { oMoveHistory[TurnNumberToCorrectIndex(turn)] = 0; }
+                if (Tools.IsInputOutOfBoundsError(turn)) 
+                { 
+                    ConsoleOutputs.DisplayLine(Constants.invalidInputLine);
+                }
+                else if (turn % 2 != 0) 
+                { 
+                    xMoveHistory[TurnNumberToCorrectIndex(turn)] = 0; 
+                }
+                else 
+                { 
+                    oMoveHistory[TurnNumberToCorrectIndex(turn)] = 0; 
+                }
 
                 Console.Clear();
                 ConsoleOutputs.ScrollHistoryGameDisplay(xMoveHistory, oMoveHistory);
@@ -107,7 +111,10 @@ public class JsonHistoryService : IHistoryService
             }
             else if (pressedKey == ConsoleKey.RightArrow)
             {
-                if (Tools.IsInputOutOfBoundsError(turn)) { ConsoleOutputs.DisplayLine(Constants.invalidInputLine); turn--; }
+                if (Tools.IsInputOutOfBoundsError(turn)) 
+                {
+                    ConsoleOutputs.DisplayLine(Constants.invalidInputLine); turn--; 
+                }
                 else if (turn % 2 != 0) { xMoveHistory[TurnNumberToCorrectIndex(turn)] = fixedXMoveHistory[TurnNumberToCorrectIndex(turn)]; }
                 else { oMoveHistory[TurnNumberToCorrectIndex(turn)] = fixedOMoveHistory[TurnNumberToCorrectIndex(turn)]; }
 
@@ -128,7 +135,7 @@ public class JsonHistoryService : IHistoryService
         else { return (turn / 2) - 1; }
     }
 
-    private bool IsStoredPlayerName(History history, string playerName)
+    private static bool IsStoredPlayerName(History history, string playerName)
     {
         if (history.PlayerXName == playerName || history.PlayerOName == playerName) { return true; }
         else { return false; }
