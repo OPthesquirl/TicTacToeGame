@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -25,32 +26,6 @@ internal class Tools
         }
 
         return false;
-    }
-
-    public static string[] OrderNamesToWinnerLoser(byte[] xMoveHistory, byte[] oMoveHistory, string playerXName, string playerOName)
-    {
-        foreach (var element in Constants.winningCombinationsOfCoördinates)
-        {
-            if (IsSubsetOf(element, xMoveHistory))
-            {
-                return [playerXName, playerOName];
-            }
-            else
-            {
-                return [playerOName, playerXName];
-            }
-        }
-        return ["", ""];
-    }
-
-    public static int CurrentTurn(byte[] xMoveHistory, byte[] oMoveHistory)
-    {
-        if (xMoveHistory.ToList().IndexOf(0) == -1) { return xMoveHistory.Length + oMoveHistory.Length - 2; }
-        else if (oMoveHistory.ToList().IndexOf(0) == -1) { return xMoveHistory.Length + oMoveHistory.Length - 3; }
-        else
-        {
-            return xMoveHistory.ToList().IndexOf(0) + oMoveHistory.ToList().IndexOf(0) + 2;
-        }
     }
 
     public static byte[] IntegerToByteArray(int integer, int arraySize)
@@ -83,55 +58,6 @@ internal class Tools
             power--;
         }
         return integer;
-    }
-
-    public static bool IsInputError(byte input, byte[] xSquares, byte[] oSquares)
-    {
-        if (IsInputOutOfBoundsError(input) || IsOccupiedSquare(input, oSquares, xSquares))
-        {
-            return true;
-        }
-        return false;
-    }
-
-    public static bool IsXTurn(byte[] xSquares, byte[] oSquares)
-    {
-        if (xSquares.Last() != 0 || xSquares.First() == 0 || xSquares.ToList().IndexOf(0) == oSquares.ToList().IndexOf(0))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    public static bool IsInputOutOfBoundsError(int input)
-    {
-        if (input <= Constants.maximumNumberOfTurnsAndInputValues || input >= Constants.minimumInputValue)
-        {
-            return false;
-        }
-        return true;
-    }
-
-    public static bool IsOccupiedSquare(byte input, byte[] xSquares, byte[] oSquares)
-    {
-        foreach (var element in xSquares)
-        {
-            if (input == element)
-            {
-                return true;
-            }
-        }
-        foreach (var element in oSquares)
-        {
-            if (input == element)
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static bool IsSubsetOf(byte[] subsetArray, byte[] fullArray)

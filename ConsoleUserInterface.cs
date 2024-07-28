@@ -12,7 +12,7 @@ internal class ConsoleUserInterface
     public static byte MoveInputWithErrorCheck(byte[] xSquares, byte[] oSquares)
     {
         byte playerMove = ConsoleInputs.GetConsoleByteInput();
-        if (Tools.IsInputError(playerMove, xSquares, oSquares))
+        if (IsInputError(playerMove, xSquares, oSquares))
         {
             ConsoleOutputs.DisplayLine(Constants.invalidInputLine);
             playerMove = ConsoleInputs.GetConsoleByteInput();
@@ -36,7 +36,6 @@ internal class ConsoleUserInterface
         ConsoleOutputs.DisplayLine(Constants.chooseAGameLine);
         int chosenGame = ConsoleInputs.GetConsoleByteInput() - 1;
 
-
         byte[] xMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].XMoveHistory, historyList[chosenGame].XMoveHistory.ToString().Length);
         byte[] oMoveHistory = Tools.IntegerToByteArray(historyList[chosenGame].OMoveHistory, historyList[chosenGame].OMoveHistory.ToString().Length);
 
@@ -46,10 +45,16 @@ internal class ConsoleUserInterface
         return chosenGame;
     }
 
-    public static void ExitLoop()
+    private static bool IsInputError(byte input, byte[] xSquares, byte[] oSquares)
     {
-        ConsoleOutputs.DisplayLine(Constants.exitExplanationLine);
-        while (!ConsoleInputs.IsKeyPressed(ConsoleKey.Enter)) { }
+        if (input <= Constants.maximumNumberOfTurnsAndInputValues || input >= Constants.minimumInputValue)
+        {
+            return true;
+        }
+        if (xSquares.Contains(input) || oSquares.Contains(input))
+        {
+            return true;
+        }
+        return false;
     }
-
 }

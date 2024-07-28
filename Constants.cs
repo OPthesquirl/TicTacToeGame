@@ -43,7 +43,7 @@ internal class Constants
     static public string historySearchByNameLine = "Type name to search by playername, press backSpace to continue to the game";
     static public string chooseAGameLine = "Choose a game: ";
 
-    static public string inputPlayerName = "Input player namde:";
+    static public string inputPlayerName = "Input player name:";
     static public string computerName = "The Algorithm";
 
     static public string computerWinsLine = "The Algorithm is Victorious";

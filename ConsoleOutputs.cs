@@ -14,7 +14,7 @@ public class ConsoleOutputs
     {
         if (Tools.IsWinCondition(xMoveHistory, oMoveHistory))
         {
-            string[] winnerLoser = Tools.OrderNamesToWinnerLoser(xMoveHistory, oMoveHistory, playerXName, playerOName);
+            string[] winnerLoser = OrderNamesToWinnerLoser(xMoveHistory, oMoveHistory, playerXName, playerOName);
             Console.WriteLine(winnerLoser[0] + Constants.wonVsLine + winnerLoser[1]);
         }
         else
@@ -44,15 +44,25 @@ public class ConsoleOutputs
         DisplayGameState(gameState);
     }
 
+    private static string[] OrderNamesToWinnerLoser(byte[] xMoveHistory, byte[] oMoveHistory, string playerXName, string playerOName)
+    {
+        foreach (var element in Constants.winningCombinationsOfCoördinates)
+        {
+            if (Tools.IsSubsetOf(element, xMoveHistory))
+            {
+                return [playerXName, playerOName];
+            }
+            else if (Tools.IsSubsetOf(element, oMoveHistory))
+            {
+                return [playerOName, playerXName];
+            }
+        }
+        return ["", ""];
+    }
+
     public static void DisplayLine(string line)
     {
         Console.WriteLine(line);
-    }
-
-    public static void GameHistoryNumberDateLine(DateTime date, int gameNumber)
-    {
-        Console.WriteLine(Constants.gameNumberLine + gameNumber);
-        Console.WriteLine(date);
     }
 
     public static void ScrollHistoryGameDisplay(byte[] xMoveHistory, byte[] oMoveHistory)
@@ -62,7 +72,7 @@ public class ConsoleOutputs
         ViewTicTacToeBoard(xMoveHistory, oMoveHistory);
     }
 
-    public static void DisplayGameState(char[] gameState)
+    private static void DisplayGameState(char[] gameState)
     {
         Console.WriteLine(gameState[0] + Constants.verticalDisplayLine + gameState[1] + Constants.verticalDisplayLine + gameState[2]);
         Console.WriteLine(Constants.horizontalDisplayLine);

@@ -31,6 +31,10 @@ internal class Program
             {
                 DisplayHistoriesLoop(historyService);
             }
+            else
+            {
+                ConsoleOutputs.DisplayLine("Mode not found.");
+            }
             ConsoleOutputs.DisplayLine(Constants.exitKeyEnterAnyKeyContinueLine);
         }
     }
@@ -90,20 +94,23 @@ internal class Program
 
     static void PlayGame(byte[] xSquares, byte[] oSquares)
     {
+        int turn = 1;
         while (!Tools.IsWinCondition(xSquares, oSquares) && xSquares.Last() == 0)
         {
-            PlayTurn(xSquares, oSquares);
+            PlayTurn(xSquares, oSquares, turn);
             ConsoleOutputs.ViewTicTacToeBoard(xSquares, oSquares);
+            turn++;
         }
     }
 
-    static void PlayTurn(byte[] xSquares, byte[] oSquares)
+    static void PlayTurn(byte[] xSquares, byte[] oSquares, int turn)
     {
-        if (Tools.IsXTurn(xSquares, oSquares)) { ConsoleOutputs.DisplayLine(Constants.xTurnLine); }
+        if (turn % 2 != 0) { ConsoleOutputs.DisplayLine(Constants.xTurnLine); }
         else { ConsoleOutputs.DisplayLine(Constants.oTurnLine); }
 
         byte input = ConsoleUserInterface.MoveInputWithErrorCheck(xSquares, oSquares);
-        if (Tools.IsXTurn(xSquares, oSquares))
+
+        if (turn % 2 != 0)
         {
             xSquares[xSquares.ToList().IndexOf(0)] = input;
             return;

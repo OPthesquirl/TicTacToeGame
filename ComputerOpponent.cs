@@ -109,7 +109,6 @@ namespace TicTacToeGame
 
             Console.Clear();
             ConsoleOutputs.ViewTicTacToeBoard(xSquares, oSquares);
-            playerNames = Tools.OrderNamesToWinnerLoser(xSquares, oSquares, playerNames[0], playerNames[1]);
             ConsoleOutputs.DisplayWinOrDraw(xSquares, oSquares, playerNames[0], playerNames[1]);
 
             return [xSquares, oSquares];
