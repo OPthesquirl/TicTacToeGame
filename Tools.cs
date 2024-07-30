@@ -1,48 +1,78 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace TicTacToeGame;
 
 internal class Tools
 {
-    public static bool IsInputError(byte input, byte[] xSquares, byte[] oSquares)
+    public static int CurrentTurn(byte[] xMoveHistory, byte[] oMoveHistory)
     {
-        if (IsInputOutOfBoundsError(input) || IsOccupiedSquare(input, oSquares, xSquares))
+        int currentTurn = 0;
+        for (int i = 0; i < xMoveHistory.Count(); i++)
         {
-            return true;
+            if (xMoveHistory[i] != 0)
+            {
+                currentTurn++;
+            }
+
+            if (i == xMoveHistory.Count() - 1)
+            {
+                break;
+            }
+
+            if (oMoveHistory[i] != 0)
+            {
+                currentTurn++;
+            }
         }
-        return false;
+        return currentTurn;
     }
 
-    public static bool IsInputOutOfBoundsError(byte input)
+    public static bool IsWinCondition(byte[] xSquares, byte[] oSquares)
     {
-        if (input > Constants.maximumNumberOfTurnsAndInputValues || input < Constants.minimumInputValue)
+        foreach (var element in Constants.winningCombinationsOfCoordinates)
         {
-            return true;
-
-        }
-        return false;
-    }
-    public static bool IsOccupiedSquare(byte input, byte[] xSquares, byte[] oSquares)
-    {
-        foreach (var element in xSquares)
-        {
-            if (input == element)
+            if (IsSubsetOf(element, xSquares))
+            {
+                return true;
+            }
+            else if (IsSubsetOf(element, oSquares))
             {
                 return true;
             }
         }
-        foreach (var element in oSquares)
-        {
-            if (input == element)
-            {
-                return true;
-            }
-        }
+
         return false;
+    }
+
+    public static byte[] IntegerToByteArray(int integer, int arraySize)
+    {
+        byte[] output = new byte[arraySize];
+        int index = 0;
+
+        for(int i = arraySize-1; i >= 0; i--)
+        {
+            byte value = 0;
+            while(integer >= Math.Pow(10, i))
+            {
+                integer -= (int)Math.Pow(10, i);
+                value++;
+            }
+            output[index++] = value;
+        }
+
+        return output;
+
+    }
+
+    public static int ByteArrayToInt(byte[] array)
+    {
+        int integer = 0;
+        int power = array.Length - 1;
+        for (int i = 0; i < array.Length; i++)
+        {
+            integer += array[i] * (int)Math.Pow(10, power);
+            power--;
+        }
+        return integer;
     }
 
     public static bool IsSubsetOf(byte[] subsetArray, byte[] fullArray)
@@ -67,17 +97,56 @@ internal class Tools
         return false;
     }
 
-    public static byte FirstEmptyIndex(byte[] array)
+    public static bool IsTakenSquareError(byte input, byte[] xSquares, byte[] oSquares)
     {
-        byte i;
-        for (i = 0; i < array.Length; i++)
+        return xSquares.Contains(input) || oSquares.Contains(input);
+    }
+
+    public static bool IsInputOutOfBoundsError(byte input)
+    {
+        return input > Constants.maximumNumberOfTurnsAndInputValues || input < Constants.minimumInputValue;
+    }
+
+    public static bool IsXTurn(int turn)
+    {
+        return turn == 0 || turn % 2 != 0;
+    }
+
+    public static bool isX(string playerRole)
+    {
+        return playerRole == "x" || playerRole == "X";
+    }
+
+    public static bool isO(string playerRole)
+    {
+        return playerRole == "o" || playerRole == "O";
+    }
+
+    public static string WinnerName(byte[] xMoveHistory, byte[] oMoveHistory, string playerXName, string playerOName)
+    {
+        foreach (var element in Constants.winningCombinationsOfCoordinates)
         {
-            if (array[i] == 0)
+            if (IsSubsetOf(element, xMoveHistory))
             {
-                return i;
+                return playerXName;
             }
         }
-        return i;
+
+        return playerOName;
     }
+
+    public static string LoserName(byte[] xMoveHistory, byte[] oMoveHistory, string playerXName, string playerOName)
+    {
+        foreach (var element in Constants.winningCombinationsOfCoordinates)
+        {
+            if (IsSubsetOf(element, xMoveHistory))
+            {
+                return playerOName;
+            }
+        }
+
+        return playerXName;
+    }
+
 
 }

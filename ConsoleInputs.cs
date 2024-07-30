@@ -8,9 +8,16 @@ namespace TicTacToeGame;
 
 public static class ConsoleInputs
 {
-    public static byte GetConsoleInput()
+    public static bool IsKeyPressed(ConsoleKey key)
     {
-        byte input = byte.Parse(Console.ReadLine());
-        return input;
+        return Console.ReadKey(true).Key == key;
+    }
+    public static byte GetConsoleByteInput()
+    {
+        return byte.Parse(Console.ReadLine());
+    }
+    public static string ReadConsoleStringInput()
+    {
+        return Console.ReadLine();
     }
 }

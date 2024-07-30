@@ -1,36 +1,31 @@
-﻿using Microsoft.VisualBasic;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace TicTacToeGame;
 
 public class ConsoleOutputs
 {
-    public static void DeclareWinner(byte[] xSquares, byte[] oSquares)
+    public static void GameEndOutputs(byte[] xMoveHistory, byte[] oMoveHistory, string playerX, string playerO)
     {
-        if (xSquares.Length > oSquares.Length)
+        Console.Clear();
+        ViewTicTacToeBoard(xMoveHistory, oMoveHistory);
+        DisplayWinOrDraw(xMoveHistory, oMoveHistory, playerX, playerO);
+    }
+
+    public static void DisplayWinOrDraw(byte[] xMoveHistory, byte[] oMoveHistory, string playerXName, string playerOName)
+    {
+        if (Tools.IsWinCondition(xMoveHistory, oMoveHistory))
         {
-            Console.WriteLine("X Wins!");
+            Console.WriteLine(Tools.WinnerName(xMoveHistory, oMoveHistory, playerXName, playerOName) + Constants.wonVsLine + Tools.LoserName(xMoveHistory, oMoveHistory, playerXName, playerOName));
         }
         else
         {
-            Console.WriteLine("O wins!");
+            Console.WriteLine(Constants.gameDrawLine + playerXName + Constants.andLine + playerOName);
         }
     }
-    public static void DisplayGameState(char[] gameState)
-    {
-        Console.WriteLine(gameState[0] + Constants.verticalDisplayLine + gameState[1] + Constants.verticalDisplayLine + gameState[2]);
-        Console.WriteLine(Constants.horizontalDisplayLine);
-        Console.WriteLine(gameState[3] + Constants.verticalDisplayLine + gameState[4] + Constants.verticalDisplayLine + gameState[5]);
-        Console.WriteLine(Constants.horizontalDisplayLine);
-        Console.WriteLine(gameState[6] + Constants.verticalDisplayLine + gameState[7] + Constants.verticalDisplayLine + gameState[8]);
-    }
+
     public static void GameStartExplanation()
     {
-        Console.WriteLine("Input number according to your chosen square:");
+        Console.Clear();
+        Console.WriteLine(" Input number according to your chosen square:");
         Console.WriteLine("1 | 2 | 3 ");
         Console.WriteLine(Constants.horizontalDisplayLine);
         Console.WriteLine("4 | 5 | 6 ");
@@ -38,28 +33,46 @@ public class ConsoleOutputs
         Console.WriteLine("7 | 8 | 9 ");
     }
 
-    public static void DisplayDraw()
+    public static void ViewTicTacToeBoard(byte[] xSquares, byte[] oSquares)
     {
-        Console.WriteLine("Draw!");
+        char[] gameState = new char[9];
+        for (byte i = 1; i < 10; i++)
+        {
+            if (Tools.IsElementOf(xSquares, i))
+            {
+                gameState[i - 1] = Constants.xChar;
+            }
+            else if (Tools.IsElementOf(oSquares, i))
+            {
+                gameState[i - 1] = Constants.oChar;
+            }
+            else
+            {
+                gameState[i - 1] = Constants.emptyChar;
+            }
+        }
+        DisplayGameState(gameState);
     }
 
-    public static void DisplayError()
+    public static void DisplayLine(string line)
     {
-        Console.WriteLine(Constants.invalidInputLine);
+        Console.WriteLine(line);
     }
 
-    public static void DisplayXTurn()
+    public static void ScrollHistoryGameDisplay(byte[] xMoveHistory, byte[] oMoveHistory)
     {
-        Console.WriteLine(Constants.xTurnLine);
+        DisplayLine(Constants.exitExplanationLine);
+        DisplayLine(Constants.historyScrollExplanationline);
+        ViewTicTacToeBoard(xMoveHistory, oMoveHistory);
     }
 
-    public static void DisplayOTurn()
+    private static void DisplayGameState(char[] gameState)
     {
-        Console.WriteLine(Constants.oTurnLine);
+        Console.WriteLine(gameState[0] + Constants.verticalDisplayLine + gameState[1] + Constants.verticalDisplayLine + gameState[2]);
+        Console.WriteLine(Constants.horizontalDisplayLine);
+        Console.WriteLine(gameState[3] + Constants.verticalDisplayLine + gameState[4] + Constants.verticalDisplayLine + gameState[5]);
+        Console.WriteLine(Constants.horizontalDisplayLine);
+        Console.WriteLine(gameState[6] + Constants.verticalDisplayLine + gameState[7] + Constants.verticalDisplayLine + gameState[8]);
     }
 
-    public static void DisplayExit()
-    {
-        Console.WriteLine(Constants.exitExplanationLine);
-    }
 }
