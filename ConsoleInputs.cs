@@ -10,16 +10,14 @@ public static class ConsoleInputs
 {
     public static bool IsKeyPressed(ConsoleKey key)
     {
-        if (Console.ReadKey(true).Key == key) {  return true; } else { return false; }
+        return Console.ReadKey(true).Key == key;
     }
     public static byte GetConsoleByteInput()
     {
-        byte input = byte.Parse(Console.ReadLine());
-        return input;
+        return byte.Parse(Console.ReadLine());
     }
-    public static string GetConsoleStringInput()
+    public static string ReadConsoleStringInput()
     {
-        string input = Console.ReadLine();
-        return input;
+        return Console.ReadLine();
     }
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TicTacToeGame;
+﻿namespace TicTacToeGame;
 
 internal class Constants
 {
@@ -13,7 +7,7 @@ internal class Constants
     static public int maximumInputValue = 9;
     static public int minimumInputValue = 1;
 
-    static public byte[][] winningCombinationsOfCoördinates = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7], [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]];
+    static public byte[][] winningCombinationsOfCoordinates = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7], [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]];
 
     //Constants for output
     static public string xTurnLine = "X's turn, input:";
@@ -47,5 +41,10 @@ internal class Constants
     static public string computerName = "The Algorithm";
 
     static public string computerWinsLine = "The Algorithm is Victorious";
+    // these are deterministic moveHistories [0][] being if Player plays 1 etc.
+    static public byte[][] xMoveAlgorithm = [[5, 2, 6, 7, 9], [5, 3, 6, 4, 0], [5, 6, 8, 1, 7], [5, 1, 2, 6, 0], [5, 9, 8, 2, 0], [5, 4, 2, 9, 3], [5, 7, 4, 6, 0], [5, 8, 4, 3, 1]];
+    static public byte[][] oMoveAlgorithm = [[1, 8, 4, 3], [2, 7, 9, 0], [3, 4, 2, 9], [4, 9, 3, 0], [6, 1, 7, 0], [7, 6, 8, 1], [8, 3, 1, 0], [9, 2, 6, 7]];
+
+
 
 }

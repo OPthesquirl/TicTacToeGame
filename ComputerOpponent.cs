@@ -12,106 +12,64 @@ namespace TicTacToeGame
 {
     internal class ComputerOpponent
     {
-        public static byte[][] ComputerGame(string playerXorO, string[] playerNames)
+        public static byte[] PlayXTurn(byte[] xMoves, byte[] oMoves)
         {
-            if (playerXorO == "o" || playerXorO == "O") 
-            { 
-                return PlayAlgorithmAsX(playerNames); 
+            if (xMoves[0] == 0)
+            {
+                xMoves[0] = 5;
+                return xMoves;
             }
-            else if (playerXorO == "x" || playerXorO == "X") 
-            { 
-                return PlayAlgorithmAsO(playerNames); 
+            else
+            {
+                byte[] algorithmArray = FindCorrectXMoveAlgorithm(oMoves);
+                int index = xMoves.ToList().IndexOf(0);
+
+                xMoves[index] = algorithmArray[index];
+
+                return xMoves;
             }
-            else return [];
+
         }
 
-        public static byte[][] PlayAlgorithmAsX(string[] playerNames)
+        public static byte[] PlayOTurn(byte[] xMoves, byte[] oMoves)
         {
-            byte[] xSquares = new byte[5];
-            byte[] oSquares = new byte[4];
+            int currentIndex = oMoves.ToList().IndexOf(0);
 
-            xSquares[0] = 5;
-
-            ConsoleOutputs.GameStartExplanation();
-            ConsoleOutputs.ViewTicTacToeBoard(xSquares, oSquares);
-            ConsoleOutputs.DisplayLine(Constants.oTurnLine);
-            byte playerMove = ConsoleUserInterface.MoveInputWithErrorCheck(xSquares, oSquares);
-
-            oSquares[0] = playerMove; 
-
-            // these are deterministic moveHistories [0][] being if Player plays 1 etc.
-            byte[][] xMoveAlgorithm = [[5, 2, 6, 7, 9], [5, 3, 6, 4, 0], [5, 6, 8, 1, 7], [5, 1, 2, 6, 0], [5, 9, 8, 2, 0], [5, 4, 2, 9, 3], [5, 7, 4, 6, 0], [5, 8, 4, 3, 1]];
-            byte[][] oMoveAlgorithm = [[1, 8, 4, 3], [2, 7, 9, 0], [3, 4, 2, 9], [4, 9, 3, 0], [6, 1, 7, 0], [7, 6, 8, 1], [8, 3, 1, 0], [9, 2, 6, 7]];
-
-            for (int i = 0; i < oMoveAlgorithm.Length; i++)
+            oMoves = TryForWinCondition(xMoves, oMoves, currentIndex);
+            if (oMoves[currentIndex] == 0)
             {
-                if (oMoveAlgorithm[i][0].Equals(playerMove))
+                oMoves[currentIndex] = FindBestEmptySquare(xMoves, oMoves);
+            }
+
+            return oMoves;
+        }
+
+        private static byte[] FindCorrectXMoveAlgorithm(byte[] Moves)
+        {
+            bool isCorrectArray = true;
+
+            foreach (var element in Constants.oMoveAlgorithm)
+            {
+                for (int i = 0; i < element.Length; i++)
                 {
-                    xSquares[1] = xMoveAlgorithm[i][1];
-                    ConsoleOutputs.ViewTicTacToeBoard(xSquares, oSquares);
-                    for (int j = 1; j < oMoveAlgorithm[i].Length; j++)
+                    if (Moves[i] == 0)
                     {
-                        playerMove = ConsoleUserInterface.MoveInputWithErrorCheck(xSquares, oSquares);
-
-                        oSquares[j] = playerMove;
-                        if (!playerMove.Equals(oMoveAlgorithm[i][j]))
-                        {
-                            xSquares[j+1] = oMoveAlgorithm[i][j];
-                            ConsoleOutputs.ViewTicTacToeBoard(xSquares, oSquares);
-                            break;
-                        }
-                        else
-                        {
-                            xSquares[j + 1] = xMoveAlgorithm[i][j + 1];
-                            ConsoleOutputs.ViewTicTacToeBoard(xSquares, oSquares);
-                        }
-
+                        isCorrectArray = true;
+                        break;
                     }
-                    break;
+                    if (element[i] != Moves[i])
+                    {
+                        isCorrectArray = false;
+                        break;
+                    }
+                }
+
+                if (isCorrectArray)
+                {
+                    return Constants.xMoveAlgorithm[Constants.oMoveAlgorithm.ToList().IndexOf(element)];
                 }
             }
-            ConsoleOutputs.DisplayWinOrDraw(xSquares, oSquares, playerNames[0], playerNames[1]);
-            return [xSquares, oSquares];
-        }
-
-        public static byte[][] PlayAlgorithmAsO(string[] playerNames)
-        {
-            byte[] xSquares = new byte[5];
-            byte[] oSquares = new byte[4];
-
-            int index = 0;
-            while (true)
-            {
-                if (index == 0) 
-                { 
-                    ConsoleOutputs.GameStartExplanation(); 
-                }
-                else 
-                { 
-                    ConsoleOutputs.ViewTicTacToeBoard(xSquares, oSquares); 
-                }
-
-                ConsoleOutputs.DisplayLine(Constants.xTurnLine);
-                xSquares[index] = ConsoleUserInterface.MoveInputWithErrorCheck(xSquares, oSquares);
-
-                if (Tools.IsWinCondition(xSquares, oSquares) || xSquares.Last() != 0) { break; }
-
-                oSquares = TryForWinCondition(xSquares, oSquares, index);
-                if (oSquares[index] == 0) 
-                { 
-                    oSquares[index] = FindBestEmptySquare(xSquares, oSquares); 
-                }
-
-                if (Tools.IsWinCondition(xSquares, oSquares)) { break; }
-
-                index++;
-            }
-
-            Console.Clear();
-            ConsoleOutputs.ViewTicTacToeBoard(xSquares, oSquares);
-            ConsoleOutputs.DisplayWinOrDraw(xSquares, oSquares, playerNames[0], playerNames[1]);
-
-            return [xSquares, oSquares];
+            return [];
         }
 
         private static byte[] TryForWinCondition(byte[] xSquares, byte[] oSquares, int index)
@@ -128,6 +86,7 @@ namespace TicTacToeGame
                     break;
                 }
                 xSquares[index + 1] = 0;
+
                 oSquares[index] = item;
                 if (Tools.IsWinCondition(xSquares, oSquares))
                 {
@@ -165,5 +124,9 @@ namespace TicTacToeGame
             }
             return 0;
         }
+
+       
+
+   
     }
 }

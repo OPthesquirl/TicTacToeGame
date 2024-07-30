@@ -1,12 +1,10 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using System.Data;
-using System.Text.Json;
+using System.Runtime.CompilerServices;
 using TicTacToeGame.ClassPractice;
 
 namespace TicTacToeGame;
 internal class Program
 {
-
     public static byte[] xSquares = new byte[5];
     public static byte[] oSquares = new byte[4];
 
@@ -18,7 +16,7 @@ internal class Program
         while (!ConsoleInputs.IsKeyPressed(ConsoleKey.Enter))
         {
             ConsoleOutputs.DisplayLine("Access: PlayerGame(input: P), computergame(input: C), gameHistory(input: H)");
-            string input = ConsoleInputs.GetConsoleStringInput();
+            string input = ConsoleInputs.ReadConsoleStringInput();
             if (input == "P" || input == "p") 
             {
                 PvPGame(historyService);
@@ -41,84 +39,68 @@ internal class Program
 
     private static void PvPGame(IHistoryService historyService)
     {
-        ConsoleOutputs.GameStartExplanation();
         string[] playerNames = ConsoleUserInterface.TakeUserNames();
 
-        PlayGame(xSquares, oSquares);
-        ConsoleOutputs.DisplayWinOrDraw(xSquares, oSquares, playerNames[0], playerNames[1]);
+        ConsoleOutputs.GameStartExplanation();
 
-        History history = historyService.CreateHistoryFile(playerNames[0], playerNames[1], xSquares, oSquares);
+        int turn = 1;
+        while (!Tools.IsWinCondition(xSquares, oSquares) && xSquares.Last() == 0)
+        {
+            ConsoleUserInterface.PlayPvPTurn(xSquares, oSquares, turn);
+            ConsoleOutputs.ViewTicTacToeBoard(xSquares, oSquares);
+            turn++;
+        }
+        ConsoleOutputs.GameEndOutputs(xSquares, oSquares, playerNames[0], playerNames[1]);
+
+        var history = History.HistoryConstructor(xSquares, oSquares, playerNames[0], playerNames[1]);
         historyService.WriteHistoryFile(history);
     }
 
     private static void ComputerGame(IHistoryService historyService)
     {
-        ConsoleOutputs.DisplayLine(Constants.inputPlayerName);
-        string playerName = ConsoleInputs.GetConsoleStringInput();
-        string[] playerNames = ["X", "O"];
-        string playerColor;
+        string playerName = ConsoleUserInterface.TakeUserName();
 
-        while (true)
-        {
-            ConsoleOutputs.DisplayLine("Play as X(input: X), Play as O(input: O)");
-            playerColor = ConsoleInputs.GetConsoleStringInput();
-            if (playerColor == "X" || playerColor == "x")
-            {
-                playerNames = [playerName, Constants.computerName];
-                break;
-            }
-            else if (playerColor == "O" || playerColor == "o")
-            {
-                playerNames = [Constants.computerName, playerName];
-                break;
-            }
-            else { ConsoleOutputs.DisplayLine("IsInputError"); }
-        }
+        string playerColor = ConsoleUserInterface.UserTeamChoiceWithErrorCheck();
 
-        byte[][] gameHistory = ComputerOpponent.ComputerGame(playerColor, playerNames);
+        string[] playerNames = OrderNames(playerName, playerColor);
+       
+        byte[][] gameHistory = ConsoleUserInterface.PlayComputerGame(playerColor, playerNames);
 
-        History history = historyService.CreateHistoryFile(playerNames[0], playerNames[1], gameHistory[0], gameHistory[1]);
+        var history = History.HistoryConstructor(gameHistory[0], gameHistory[1], playerNames[0], playerNames[1]);
         historyService.WriteHistoryFile(history);
     }
 
-    static void DisplayHistoriesLoop(IHistoryService historyService)
+    private static string[] OrderNames(string playerName, string playerColor)
     {
-        ConsoleOutputs.DisplayLine(Constants.historySearchByNameLine);
+        if (playerColor == "X" || playerColor == "x")
+        {
+            return [playerName, Constants.computerName];
+        }
+
+        return [Constants.computerName, playerName];
+    }
+
+    private static void DisplayHistoriesLoop(IHistoryService historyService)
+    {
         while (!ConsoleInputs.IsKeyPressed(ConsoleKey.Backspace))
         {
-            var input = Console.ReadLine();
-            historyService.DisplayGamesByPlayerName(input);
-            Console.WriteLine("Press backspace to exit, Input name for another search");
-        }
-    }
+            ConsoleOutputs.DisplayLine(Constants.historySearchByNameLine);
+            string input = ConsoleInputs.ReadConsoleStringInput();
+            ConsoleUserInterface.DisplayGamesWithPlayerName(input, historyService);
+            
+            List<History> historyListWithPlayerName = historyService.FilterHistoriesByPlayerName(historyService.ReadHistoryFile(Constants.fileName), input);
 
-    static void PlayGame(byte[] xSquares, byte[] oSquares)
-    {
-        int turn = 1;
-        while (!Tools.IsWinCondition(xSquares, oSquares) && xSquares.Last() == 0)
-        {
-            PlayTurn(xSquares, oSquares, turn);
-            ConsoleOutputs.ViewTicTacToeBoard(xSquares, oSquares);
-            turn++;
-        }
-    }
+            ConsoleOutputs.DisplayLine(Constants.pressEnterForSpecificGameLine);
+            if (ConsoleInputs.IsKeyPressed(ConsoleKey.Enter))
+            {
+                var chosenGame = ConsoleUserInterface.ChooseGameHistoryFile(historyListWithPlayerName);
+                byte[] xMoveHistory = Tools.IntegerToByteArray(historyListWithPlayerName[chosenGame].XMoveHistory, historyListWithPlayerName[chosenGame].XMoveHistory.ToString().Length);
+                byte[] oMoveHistory = Tools.IntegerToByteArray(historyListWithPlayerName[chosenGame].OMoveHistory, historyListWithPlayerName[chosenGame].OMoveHistory.ToString().Length);
 
-    static void PlayTurn(byte[] xSquares, byte[] oSquares, int turn)
-    {
-        if (turn % 2 != 0) { ConsoleOutputs.DisplayLine(Constants.xTurnLine); }
-        else { ConsoleOutputs.DisplayLine(Constants.oTurnLine); }
-
-        byte input = ConsoleUserInterface.MoveInputWithErrorCheck(xSquares, oSquares);
-
-        if (turn % 2 != 0)
-        {
-            xSquares[xSquares.ToList().IndexOf(0)] = input;
-            return;
-        }
-        else
-        {
-            oSquares[oSquares.ToList().IndexOf(0)] = input;
-            return;
+                Console.Clear();
+                ConsoleOutputs.ScrollHistoryGameDisplay(xMoveHistory, oMoveHistory);
+                ConsoleUserInterface.ScrollChosenGame(xMoveHistory, oMoveHistory);
+            }
         }
     }
 
